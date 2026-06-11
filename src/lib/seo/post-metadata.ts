@@ -12,10 +12,11 @@ export function buildPostMetadata(post: LocalizedPost, locale: Locale): Metadata
     title: post.title,
     description,
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical: `${siteConfig.url}/blog/${post.slug}`,
       languages: {
-        en: `/blog/${post.slug_en}`,
-        es: `/blog/${post.slug_es}`,
+        en: `${siteConfig.url}/blog/${post.slug_en}`,
+        es: `${siteConfig.url}/blog/${post.slug_es}`,
+        'x-default': `${siteConfig.url}/blog/${post.slug_en}`,
       },
     },
     openGraph: {

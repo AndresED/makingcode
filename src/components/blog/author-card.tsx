@@ -1,3 +1,4 @@
+import { AuthorAvatar } from '@/components/author-avatar';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
 import { siteConfig } from '@/lib/seo/site';
@@ -15,12 +16,7 @@ export function AuthorCard({ locale }: AuthorCardProps) {
       aria-label={t(locale, 'author.about')}
     >
       <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-start sm:gap-6">
-        <div
-          className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/25 via-dark-700 to-meta-500/15 text-xl font-bold text-accent-400"
-          aria-hidden="true"
-        >
-          AE
-        </div>
+        <AuthorAvatar size="md" />
 
         <div className="min-w-0 flex-1 space-y-3">
           <div>

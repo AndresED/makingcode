@@ -10,8 +10,15 @@ export const dictionary = {
     'nav.signOut': 'Sign out',
     'nav.admin': 'Admin',
     'home.title': 'Making Code',
-    'home.subtitle': 'Technical writing on backend, cloud, and architecture.',
-    'home.tagline': 'Practical notes from building production systems — patterns, trade-offs, and code you can ship.',
+    'home.eyebrow': 'Senior Backend Engineer',
+    'home.subtitle': 'Practical notes on architecture, trade-offs, and code you can run in production.',
+    'home.tagline':
+      'I write about what I ship in production: NestJS, AWS, and distributed systems.',
+    'home.ctaBlog': 'Read the blog',
+    'home.ctaPortfolio': 'View portfolio',
+    'home.authorLocation': 'Peru',
+    'home.authorIntro':
+      '5+ years building cloud-native APIs and event-driven microservices for logistics and compliance products.',
     'home.featured': 'Latest article',
     'home.recent': 'Recent articles',
     'home.empty': 'No posts yet — new articles coming soon.',
@@ -57,10 +64,21 @@ export const dictionary = {
     'footer.built': 'Built with',
     'footer.tagline': 'Technical blog by',
     'about.title': 'About',
+    'about.para1':
+      'I am a Senior Backend Engineer from Peru with 5+ years shipping production APIs, microservices, and cloud-native systems. I work with explicit boundaries — ports and adapters, bounded contexts, and contracts you can test.',
+    'about.para2':
+      'Recent work spans multitenant NestJS services on AWS, event-driven architectures with Kafka, and integrations across logistics and compliance domains.',
+    'about.para3':
+      'I write Making Code to document patterns, trade-offs, and lessons from real production systems — not tutorial fluff.',
+    'about.stackTitle': 'Current stack',
+    'about.nowTitle': 'What I am working on',
+    'about.now':
+      'NestJS enterprise patterns, infrastructure docs, and multitenant APIs for logistics workflows in Peru.',
+    'about.blogTitle': 'About this blog',
     'about.body1':
       'is the technical blog of {author} — Senior Backend Engineer writing about distributed systems, cloud architecture, and pragmatic software craft.',
     'about.body2':
-      'Articles are published in English and Spanish. Use the language toggle in the header to switch.',
+      'Articles are published in English and Spanish. Use the language toggle in the header to switch languages.',
     'category.backend': 'Backend',
     'category.cloud': 'Cloud & AWS',
     'category.architecture': 'Architecture',
@@ -80,9 +98,16 @@ export const dictionary = {
     'nav.signOut': 'Cerrar sesión',
     'nav.admin': 'Administración',
     'home.title': 'Making Code',
-    'home.subtitle': 'Escritura técnica sobre backend, cloud y arquitectura.',
+    'home.eyebrow': 'Backend Engineer Senior',
+    'home.subtitle':
+      'Notas prácticas sobre arquitectura, trade-offs y código que puedes llevar a producción.',
     'home.tagline':
-      'Notas prácticas de sistemas en producción — patrones, trade-offs y código que puedes llevar a prod.',
+      'Escribo sobre lo que construyo en producción: NestJS, AWS y sistemas distribuidos.',
+    'home.ctaBlog': 'Leer el blog',
+    'home.ctaPortfolio': 'Ver portafolio',
+    'home.authorLocation': 'Perú',
+    'home.authorIntro':
+      'Más de 5 años construyendo APIs cloud-native y microservicios orientados a eventos para logística y cumplimiento.',
     'home.featured': 'Último artículo',
     'home.recent': 'Artículos recientes',
     'home.empty': 'Aún no hay publicaciones — pronto habrá artículos nuevos.',
@@ -128,10 +153,21 @@ export const dictionary = {
     'footer.built': 'Hecho con',
     'footer.tagline': 'Blog técnico de',
     'about.title': 'Acerca de',
+    'about.para1':
+      'Soy Backend Engineer Senior en Perú con más de 5 años llevando APIs, microservicios y sistemas cloud-native a producción. Trabajo con límites explícitos: ports and adapters, bounded contexts y contratos que puedes testear.',
+    'about.para2':
+      'Mi trabajo reciente incluye servicios NestJS multitenant en AWS, arquitecturas orientadas a eventos con Kafka e integraciones en dominios logísticos y de cumplimiento.',
+    'about.para3':
+      'Escribo Making Code para documentar patrones, trade-offs y lecciones de sistemas reales en producción — no tutoriales vacíos.',
+    'about.stackTitle': 'Stack actual',
+    'about.nowTitle': 'En qué estoy trabajando',
+    'about.now':
+      'Patrones enterprise en NestJS, documentación de infraestructura y APIs multitenant para flujos logísticos en Perú.',
+    'about.blogTitle': 'Sobre este blog',
     'about.body1':
       'es el blog técnico de {author} — Backend Engineer Senior escribiendo sobre sistemas distribuidos, arquitectura cloud y craft de software.',
     'about.body2':
-      'Los artículos se publican en inglés y español. Usa el selector de idioma en el header para cambiar.',
+      'Los artículos se publican en inglés y español. Usa el selector de idioma en el header para cambiar de idioma.',
     'category.backend': 'Backend',
     'category.cloud': 'Cloud y AWS',
     'category.architecture': 'Arquitectura',

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { BlogSearch } from '@/components/blog/blog-search';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { Pagination } from '@/components/pagination';
@@ -11,7 +10,7 @@ import { getLocale } from '@/lib/i18n/locale';
 import { isPostCategory } from '@/lib/posts/categories';
 import { listPublishedPosts } from '@/lib/posts/repository';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -45,6 +44,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       locale={locale}
       recentPosts={recentResult.posts}
       activeCategory={category}
+      showMobileExplore
     >
       <section className="space-y-8">
         <header className="space-y-4">
@@ -54,9 +54,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <p className="text-ink-muted">
             {result.total} {result.total === 1 ? 'article' : 'articles'}
           </p>
-          <div className="lg:hidden">
-            <BlogSearch locale={locale} />
-          </div>
         </header>
 
         {result.posts.length === 0 ? (

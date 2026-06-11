@@ -2,10 +2,12 @@ export const siteConfig = {
   name: 'Making Code',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   description:
-    'Technical writing on backend engineering, cloud architecture, and software craft.',
+    'Senior Backend Engineer writing about NestJS, AWS, and distributed systems built in production.',
   author: {
     name: 'Andrés Esquivel',
     role: 'Senior Backend Engineer',
+    location: 'Peru',
+    avatarPath: '/images/andres-esquivel.jpg',
     url: 'https://www.andresed.dev',
     email: 'andres30xed@gmail.com',
     twitter: '@andres30xed',

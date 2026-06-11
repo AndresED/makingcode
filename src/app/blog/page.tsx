@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { BlogSearch } from '@/components/blog/blog-search';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { Pagination } from '@/components/pagination';
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
   description: 'Articles on backend engineering, cloud, and software architecture.',
 };
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string; q?: string }>;
@@ -38,7 +37,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     : await listPublishedPosts({ page });
 
   return (
-    <ListLayout locale={locale} recentPosts={recentResult.posts}>
+    <ListLayout locale={locale} recentPosts={recentResult.posts} showMobileExplore>
       <section className="space-y-8">
         <header className="space-y-4">
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
@@ -52,9 +51,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           ) : (
             <p className="text-ink-muted">{t(locale, 'home.subtitle')}</p>
           )}
-          <div className="lg:hidden">
-            <BlogSearch locale={locale} />
-          </div>
         </header>
 
         {result.posts.length === 0 ? (

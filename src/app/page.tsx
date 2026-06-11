@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FeaturedPostCard } from '@/components/blog/featured-post-card';
+import { HomeHero } from '@/components/blog/home-hero';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { PostGrid } from '@/components/post-grid';
@@ -18,15 +19,7 @@ export default async function HomePage() {
   return (
     <ListLayout locale={locale} recentPosts={posts.slice(0, 5)}>
       <section className="space-y-10">
-        <header className="space-y-4">
-          <p className="max-w-2xl text-base leading-relaxed text-ink-body">
-            {t(locale, 'home.tagline')}
-          </p>
-          <h1 className="font-display text-4xl font-medium tracking-tight text-ink sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
-            {t(locale, 'home.title')}
-          </h1>
-          <p className="max-w-xl text-lg text-ink-muted">{t(locale, 'home.subtitle')}</p>
-        </header>
+        <HomeHero locale={locale} />
 
         {posts.length === 0 ? (
           <EmptyPosts locale={locale} />
