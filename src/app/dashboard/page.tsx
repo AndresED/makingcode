@@ -35,10 +35,11 @@ export default async function DashboardPage() {
                   href={`/dashboard/posts/${post.id}/edit`}
                   className="font-medium text-ink hover:text-accent-500"
                 >
-                  {post.title}
+                  {post.title_en}
                 </Link>
                 <p className="text-xs text-ink-muted">
-                  /blog/{post.slug} · {post.status}
+                  {post.title_es} · EN /blog/{post.slug_en} · ES /blog/{post.slug_es} ·{' '}
+                  {post.status}
                 </p>
               </div>
               <span

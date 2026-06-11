@@ -1,13 +1,46 @@
 'use client';
 
-import { useActionState } from 'react';
-import { signInAction } from '@/lib/auth/actions';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signInWithPassword } from '@/lib/auth/sign-in';
+
+function normalizeEmail(raw: string): string {
+  return raw.normalize('NFKC').trim().toLowerCase().replace(/\u200b/g, '');
+}
 
 export function LoginForm() {
-  const [state, formAction, pending] = useActionState(signInAction, {});
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setPending(true);
+
+    const form = new FormData(event.currentTarget);
+    const email = normalizeEmail(String(form.get('email') ?? ''));
+    const password = String(form.get('password') ?? '');
+
+    if (!email || !password) {
+      setError('Email and password are required');
+      setPending(false);
+      return;
+    }
+
+    const signIn = await signInWithPassword(email, password);
+    if (!signIn.ok) {
+      setError(signIn.error ?? 'Invalid email or password');
+      setPending(false);
+      return;
+    }
+
+    router.push('/dashboard');
+    router.refresh();
+  }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="email" className="mb-1 block text-sm text-ink-muted">
           Email
@@ -16,7 +49,8 @@ export function LoginForm() {
           id="email"
           name="email"
           type="email"
-          autoComplete="email"
+          autoComplete="off"
+          spellCheck={false}
           required
           className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink outline-none focus:border-meta-500"
         />
@@ -29,15 +63,16 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
-          minLength={12}
+          minLength={6}
+          placeholder="MakingCode2026Admin"
           className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink outline-none focus:border-meta-500"
         />
       </div>
-      {state.error ? (
+      {error ? (
         <p className="text-sm text-red-400" role="alert">
-          {state.error}
+          {error}
         </p>
       ) : null}
       <button

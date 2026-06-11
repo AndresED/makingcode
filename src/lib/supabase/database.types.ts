@@ -15,53 +15,65 @@ export type Database = {
       posts: {
         Row: {
           author_id: string;
-          body_html: string;
-          body_md: string;
+          body_html_en: string;
+          body_html_es: string;
+          body_md_en: string;
+          body_md_es: string;
           category: string;
           cover_image_url: string | null;
           created_at: string;
-          excerpt: string;
+          excerpt_en: string;
+          excerpt_es: string;
           id: string;
-          locale: string;
           published_at: string | null;
           reading_time_minutes: number;
-          slug: string;
+          slug_en: string;
+          slug_es: string;
           status: string;
-          title: string;
+          title_en: string;
+          title_es: string;
           updated_at: string;
         };
         Insert: {
           author_id: string;
-          body_html?: string;
-          body_md: string;
+          body_html_en?: string;
+          body_html_es?: string;
+          body_md_en: string;
+          body_md_es: string;
           category: string;
           cover_image_url?: string | null;
           created_at?: string;
-          excerpt: string;
+          excerpt_en: string;
+          excerpt_es: string;
           id?: string;
-          locale?: string;
           published_at?: string | null;
           reading_time_minutes?: number;
-          slug: string;
+          slug_en: string;
+          slug_es: string;
           status?: string;
-          title: string;
+          title_en: string;
+          title_es: string;
           updated_at?: string;
         };
         Update: {
           author_id?: string;
-          body_html?: string;
-          body_md?: string;
+          body_html_en?: string;
+          body_html_es?: string;
+          body_md_en?: string;
+          body_md_es?: string;
           category?: string;
           cover_image_url?: string | null;
           created_at?: string;
-          excerpt?: string;
+          excerpt_en?: string;
+          excerpt_es?: string;
           id?: string;
-          locale?: string;
           published_at?: string | null;
           reading_time_minutes?: number;
-          slug?: string;
+          slug_en?: string;
+          slug_es?: string;
           status?: string;
-          title?: string;
+          title_en?: string;
+          title_es?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -94,23 +106,11 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: {
-      [_ in never]: never;
-    };
+    Views: Record<string, never>;
     Functions: {
-      is_admin: { Args: never; Returns: boolean };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
     };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
-
-export type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row'];
-
-export type TablesInsert<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Insert'];

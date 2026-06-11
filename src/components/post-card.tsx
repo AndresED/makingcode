@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PostCoverImage } from '@/components/post-cover-image';
 import type { PostSummary } from '@/lib/posts/types';
 import { categoryLabel } from '@/lib/i18n/category';
 import type { Locale } from '@/lib/i18n/dictionary';
@@ -19,6 +20,21 @@ function formatDate(iso: string): string {
 export function PostCard({ post, locale }: PostCardProps) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-white/8 bg-dark-800/50 transition-colors hover:border-white/15">
+      {post.cover_image_url ? (
+        <Link
+          href={`/blog/${post.slug}`}
+          className="relative block aspect-[16/9] overflow-hidden border-b border-white/8"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <PostCoverImage
+            src={post.cover_image_url}
+            alt=""
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </Link>
+      ) : null}
       <Link href={`/blog/${post.slug}`} className="flex flex-1 flex-col p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
           <span className="rounded-full border border-white/10 px-2 py-0.5 text-meta-500">

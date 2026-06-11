@@ -1,17 +1,25 @@
 import type { Metadata } from 'next';
-import type { PostDetail } from '@/lib/posts/types';
+import type { Locale } from '@/lib/i18n/dictionary';
+import type { LocalizedPost } from '@/lib/posts/types';
 import { siteConfig } from './site';
 
-export function buildPostMetadata(post: PostDetail): Metadata {
+export function buildPostMetadata(post: LocalizedPost, locale: Locale): Metadata {
   const description = post.excerpt.slice(0, 160);
   const ogImage = post.cover_image_url ?? `${siteConfig.url}/opengraph-image`;
 
   return {
     title: post.title,
     description,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+      languages: {
+        en: `/blog/${post.slug_en}`,
+        es: `/blog/${post.slug_es}`,
+      },
+    },
     openGraph: {
       type: 'article',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
       title: post.title,
       description,
       url: `/blog/${post.slug}`,
@@ -28,10 +36,14 @@ export function buildPostMetadata(post: PostDetail): Metadata {
   };
 }
 
-export function buildArticleJsonLd(post: PostDetail): Record<string, unknown> {
+export function buildArticleJsonLd(
+  post: LocalizedPost,
+  locale: Locale,
+): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
+    inLanguage: locale,
     headline: post.title,
     description: post.excerpt,
     datePublished: post.published_at,

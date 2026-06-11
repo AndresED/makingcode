@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Building Your First Hexagonal Module in NestJS",
+    "slug": "building-hexagonal-module-nestjs",
+    "category": "architecture",
+    "excerpt": "Step-by-step tutorial: structure a User module with ports, adapters, and dependency rules so your domain never imports TypeORM or HTTP code.",
+    "bodyFile": "building-hexagonal-module-nestjs.body.md"
+  },
+  {
+    "title": "Implementing CQRS in NestJS: Commands, Queries, and Handlers",
+    "slug": "implementing-cqrs-nestjs-tutorial",
+    "category": "architecture",
+    "excerpt": "Learn to separate writes from reads using @nestjs/cqrs — from your first CreateUserCommand to paginated queries and thin controllers.",
+    "bodyFile": "implementing-cqrs-nestjs-tutorial.body.md"
+  },
+  {
+    "title": "Secure Your NestJS API with JWT: A Step-by-Step Guide",
+    "slug": "nestjs-jwt-auth-tutorial",
+    "category": "security",
+    "excerpt": "Implement Passport local + JWT strategies, guards, and role-based access in NestJS without coupling auth to TypeORM.",
+    "bodyFile": "nestjs-jwt-auth-tutorial.body.md"
+  },
+  {
+    "title": "How to Implement the Outbox Pattern in NestJS",
+    "slug": "outbox-pattern-nestjs-tutorial",
+    "category": "architecture",
+    "excerpt": "Build reliable event publishing: save domain changes and outbox rows in one transaction, then publish to Kafka with a background worker.",
+    "bodyFile": "outbox-pattern-nestjs-tutorial.body.md"
+  },
+  {
+    "title": "Background Jobs in NestJS with BullMQ and Redis",
+    "slug": "bullmq-nestjs-tutorial",
+    "category": "backend",
+    "excerpt": "Offload emails and slow tasks to Redis queues — configure workers, retries, and enqueue jobs from command handlers the right way.",
+    "bodyFile": "bullmq-nestjs-tutorial.body.md"
+  },
+  {
+    "title": "Multitenancy in NestJS: Isolate Tenant Data Step by Step",
+    "slug": "multitenancy-nestjs-tutorial",
+    "category": "architecture",
+    "excerpt": "Choose a tenancy model, add tenant_id to your schema, and enforce isolation with a resolver, guard, and tenant-aware repository.",
+    "bodyFile": "multitenancy-nestjs-tutorial.body.md"
+  },
+  {
+    "title": "Testing NestJS Handlers with Jest: A Practical TDD Walkthrough",
+    "slug": "nestjs-tdd-handlers-tutorial",
+    "category": "backend",
+    "excerpt": "Write unit tests for command and query handlers using mocked ports — the testing approach that makes hexagonal architecture pay off.",
+    "bodyFile": "nestjs-tdd-handlers-tutorial.body.md"
+  },
+  {
+    "title": "Idempotent Event Consumers in NestJS",
+    "slug": "idempotent-consumers-nestjs-tutorial",
+    "category": "backend",
+    "excerpt": "Handle duplicate Kafka or queue messages safely with a processed-events table and idempotency keys.",
+    "bodyFile": "idempotent-consumers-nestjs-tutorial.body.md"
+  }
+]

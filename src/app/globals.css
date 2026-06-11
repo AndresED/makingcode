@@ -115,3 +115,22 @@
   padding-left: 1rem;
   color: var(--color-ink-muted);
 }
+
+.post-prose table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.post-prose th,
+.post-prose td {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.post-prose th {
+  color: var(--color-ink);
+  background: var(--color-dark-800);
+}

@@ -1,5 +1,6 @@
 import { siteConfig } from '@/lib/seo/site';
-import { listPublishedPosts } from '@/lib/posts/repository';
+import { listPublishedPostRecords } from '@/lib/posts/repository';
+import { localizePost } from '@/lib/posts/localize';
 
 export const revalidate = 3600;
 
@@ -11,8 +12,12 @@ function escapeXml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-export async function GET() {
-  const { posts } = await listPublishedPosts({ page: 1, pageSize: 50 });
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const lang = url.searchParams.get('lang') === 'es' ? 'es' : 'en';
+  const records = await listPublishedPostRecords();
+  const posts = records.map((row) => localizePost(row, lang));
+
   const items = posts
     .map(
       (post) => `
@@ -32,7 +37,7 @@ export async function GET() {
     <title>${escapeXml(siteConfig.name)}</title>
     <link>${siteConfig.url}</link>
     <description>${escapeXml(siteConfig.description)}</description>
-    <language>en</language>${items}
+    <language>${lang}</language>${items}
   </channel>
 </rss>`;
 

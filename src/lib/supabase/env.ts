@@ -18,3 +18,16 @@ export function getSupabasePublishableKey(): string {
   }
   return key;
 }
+
+/** Prefer anon JWT for Auth API — publishable keys can fail password grant in some clients. */
+export function getSupabaseAuthKey(): string {
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!key) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    );
+  }
+  return key;
+}

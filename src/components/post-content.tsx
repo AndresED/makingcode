@@ -1,12 +1,11 @@
 import { markdownToHtml } from '@/lib/markdown/render';
 
 interface PostContentProps {
-  bodyHtml: string;
   bodyMd: string;
 }
 
-export async function PostContent({ bodyHtml, bodyMd }: PostContentProps) {
-  const html = bodyHtml.trim() ? bodyHtml : await markdownToHtml(bodyMd);
+export async function PostContent({ bodyMd }: PostContentProps) {
+  const html = await markdownToHtml(bodyMd);
 
   return (
     <div
