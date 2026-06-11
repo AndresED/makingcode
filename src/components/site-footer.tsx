@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/brand/logo';
 import { t, type Locale } from '@/lib/i18n/dictionary';
 import { siteConfig } from '@/lib/seo/site';
 
@@ -12,7 +13,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
-            <p className="font-display text-lg text-ink">{siteConfig.name}</p>
+            <Logo size="lg" />
             <p className="max-w-xs text-sm text-ink-muted">{t(locale, 'home.subtitle')}</p>
           </div>
           <div className="space-y-2 text-sm">

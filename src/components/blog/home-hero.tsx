@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BrandWordmark } from '@/components/brand/logo';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
 import { siteConfig } from '@/lib/seo/site';
@@ -14,8 +15,8 @@ export function HomeHero({ locale }: HomeHeroProps) {
     <header className="space-y-6">
       <div className="space-y-4">
         <p className="label-caps text-accent-400">{t(locale, 'home.eyebrow')}</p>
-        <h1 className="font-display text-4xl font-medium tracking-tight text-ink sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
-          {t(locale, 'home.title')}
+        <h1 className="lg:leading-[1.1]">
+          <BrandWordmark size="hero" />
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-ink-body">{t(locale, 'home.tagline')}</p>
       </div>

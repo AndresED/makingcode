@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { DM_Sans, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { getAdminSession } from '@/lib/auth/session';
+import { hubotSans, jetbrainsMono, sourceSans } from '@/lib/fonts';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { getLocale } from '@/lib/i18n/locale';
 import { siteConfig } from '@/lib/seo/site';
@@ -8,24 +8,6 @@ import { Analytics } from '@/components/analytics';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import './globals.css';
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
-
-const newsreader = Newsreader({
-  subsets: ['latin'],
-  variable: '--font-newsreader',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -62,7 +44,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${newsreader.variable} ${jetbrainsMono.variable}`}
+      className={`${hubotSans.variable} ${sourceSans.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-dvh font-sans" suppressHydrationWarning>

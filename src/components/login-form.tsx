@@ -49,7 +49,7 @@ export function LoginForm() {
           id="email"
           name="email"
           type="email"
-          autoComplete="off"
+          autoComplete="email"
           spellCheck={false}
           required
           className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink outline-none focus:border-meta-500"
@@ -63,10 +63,9 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
-          autoComplete="new-password"
+          autoComplete="current-password"
           required
           minLength={6}
-          placeholder="MakingCode2026Admin"
           className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink outline-none focus:border-meta-500"
         />
       </div>

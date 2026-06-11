@@ -1,10 +1,10 @@
 import Link from 'next/link';
+import { Logo } from '@/components/brand/logo';
 import { AdminNav } from '@/components/admin-nav';
 import { LocaleToggle } from '@/components/locale-toggle';
 import { MobileNav } from '@/components/mobile-nav';
 import { NavLink } from '@/components/nav-link';
 import { t, type Locale } from '@/lib/i18n/dictionary';
-import { siteConfig } from '@/lib/seo/site';
 
 interface SiteHeaderProps {
   locale: Locale;
@@ -28,17 +28,10 @@ export function SiteHeader({
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="group flex items-center gap-2.5 text-ink transition-opacity duration-150 ease-out hover:opacity-90"
+          className="group text-ink transition-opacity duration-150 ease-out hover:opacity-90"
+          aria-label="Making Code — Home"
         >
-          <span
-            className="flex size-7 items-center justify-center rounded-md bg-accent-500/15 text-xs font-bold text-accent-400"
-            aria-hidden="true"
-          >
-            MC
-          </span>
-          <span className="font-display text-base font-medium tracking-tight">
-            {siteConfig.name}
-          </span>
+          <Logo />
         </Link>
 
         <nav

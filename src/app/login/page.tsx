@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Logo } from '@/components/brand/logo';
 import { LoginForm } from '@/components/login-form';
 import { getAdminSession } from '@/lib/auth/session';
 
@@ -13,10 +14,11 @@ export default async function LoginPage() {
   if (session) redirect('/dashboard');
 
   return (
-    <section className="mx-auto max-w-sm space-y-6">
+    <section className="mx-auto max-w-sm space-y-8">
+      <Logo markSize={36} />
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold text-ink">Admin login</h1>
-        <p className="text-sm text-ink-muted">Making Code dashboard</p>
+        <p className="text-sm text-ink-muted">Dashboard</p>
       </div>
       <LoginForm />
     </section>

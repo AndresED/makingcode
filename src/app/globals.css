@@ -16,8 +16,8 @@
   --color-ink-muted: #9ca3ad;
   --color-border: rgb(255 255 255 / 0.07);
   --color-border-strong: rgb(255 255 255 / 0.12);
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
-  --font-display: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-source-sans), system-ui, sans-serif;
+  --font-display: var(--font-hubot), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), 'Cascadia Code', monospace;
 }
 

@@ -3,9 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
-const EXPECTED_EMAIL = 'andres30xed@gmail.com';
-const EXPECTED_PASSWORD = 'MakingCode2026Admin';
-
 function normalizeEmail(raw: unknown): string {
   return String(raw ?? '')
     .normalize('NFKC')
@@ -14,18 +11,9 @@ function normalizeEmail(raw: unknown): string {
     .replace(/\u200b/g, '');
 }
 
-function charsMatch(value: string, expected: string): boolean {
-  if (value.length !== expected.length) return false;
-  return [...value].every((c, i) => c.charCodeAt(0) === expected.charCodeAt(i));
-}
-
-function devDebug(email: string, password: string, extra?: Record<string, unknown>) {
+function devDebug(extra?: Record<string, unknown>) {
   if (process.env.NODE_ENV !== 'development') return undefined;
   return {
-    email,
-    emailMatch: email === EXPECTED_EMAIL && charsMatch(email, EXPECTED_EMAIL),
-    passwordLen: password.length,
-    passwordMatch: charsMatch(password, EXPECTED_PASSWORD),
     authKeyType: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.startsWith('eyJ')
       ? 'anon'
       : 'publishable',
@@ -104,7 +92,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: 'Invalid email or password',
-        ...devDebug(email, password, {
+        ...devDebug({
           supabaseStatus: token.status,
           supabaseMsg: token.msg,
         }),
