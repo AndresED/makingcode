@@ -34,6 +34,26 @@ docs/
 3. **Ligero** — diseño alineado con andresed.dev (oscuro, tipografía clara, sin bloat).
 4. **Seguro** — auth en admin; sin secretos en repo; RLS en Supabase.
 
+## Desarrollo local
+
+```bash
+cp .env.example .env.local
+# Fill Supabase URL and keys (see supabase/README.md)
+
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
+
 ## Siguiente paso
 
-Revisar [docs/00-vision/recapitulacion.md](./docs/00-vision/recapitulacion.md) y validar las specs en `docs/03-specs/`.
+1. Crear proyecto Supabase y aplicar `supabase/migrations/20260610000000_init.sql`
+2. Fase 2 — lectura pública con posts desde BD
+3. Fase 3 — login + editor markdown

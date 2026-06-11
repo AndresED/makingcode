@@ -11,11 +11,14 @@
 
 ## Fase 1 — Scaffold + infra
 
-- [ ] `create-next-app` (TypeScript, Tailwind, App Router, ESLint)
-- [ ] Proyecto Supabase + migración `posts` / `profiles`
-- [ ] RLS y allowlist admin
-- [ ] `.env.example`, README setup local
-- [ ] CI: lint + typecheck
+- [x] Next.js 15 (TypeScript, Tailwind 4, App Router, ESLint)
+- [x] Migración SQL `posts` / `profiles` + RLS (`supabase/migrations/`)
+- [x] Clientes Supabase SSR + middleware stub
+- [x] Lib: categorías, i18n, auth allowlist, SEO site config
+- [x] Rutas placeholder: `/`, `/blog`, `/categories/[category]`, `/about`, `/login`, `/dashboard`
+- [x] `sitemap.ts`, `robots.ts`
+- [ ] Proyecto Supabase creado en cloud (manual)
+- [x] CI: lint + typecheck en GitHub Actions
 
 **Entregable:** app corre en local; BD migrada; sin UI pulida.
 
