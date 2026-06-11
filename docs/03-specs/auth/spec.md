@@ -5,7 +5,7 @@
 | **Código** | `app/(admin)/`, `middleware.ts`, `lib/supabase/` |
 | **Requerimientos** | [E2-US01](../../02-requerimientos/README.md) |
 | **Última revisión** | 2026-06-10 |
-| **Estado** | Borrador |
+| **Estado** | Aprobada |
 
 ## 1. Propósito
 
@@ -26,19 +26,13 @@ Proteger el panel de administración para que solo el autor pueda crear y public
 - OAuth social (Google/GitHub) — puede añadirse en v1.1.
 - MFA — recomendado post-lanzamiento.
 
-## 3. Método de login (propuesta)
+## 3. Método de login — **Email + contraseña** (aprobado)
 
-**Opción A (recomendada): Magic Link**
-
-- Email OTP / enlace mágico.
-- Sin contraseña que rotar; menos superficie de ataque.
-- Supabase envía email (o SMTP custom).
-
-**Opción B: Email + Password**
-
-- Más familiar; requiere política de contraseña fuerte.
-
-> **Pendiente tu decisión** — la spec asume Magic Link hasta confirmación.
+- Supabase Auth: `signInWithPassword({ email, password })`.
+- **Sin registro público** — `signUp` deshabilitado en UI; cuenta admin creada en Supabase Dashboard o script seed one-time.
+- Formulario login: email, password, submit; mensajes de error vía i18n (EN/ES).
+- Política de contraseña (Supabase Auth settings): mínimo **12 caracteres**.
+- Recuperación de contraseña: email reset de Supabase (habilitar en proyecto; enlace en login "Forgot password?").
 
 ## 4. Modelo
 
@@ -97,6 +91,8 @@ Toda action que muta posts:
 - [ ] Server action rechaza mutación sin rol admin.
 - [ ] Logout limpia sesión.
 
-## 10. Preguntas abiertas
+## 10. Bootstrap admin (one-time)
 
-- Magic link vs password — ¿cuál prefieres?
+1. Crear usuario en Supabase Auth con email allowlisted.
+2. Trigger crea `profiles` con `role: admin`.
+3. Documentar en README — sin exponer credenciales en repo.

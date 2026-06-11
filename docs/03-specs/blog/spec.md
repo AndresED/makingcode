@@ -5,7 +5,7 @@
 | **Código** | `app/(public)/blog/`, `app/(admin)/dashboard/`, `lib/posts/` |
 | **Requerimientos** | [E1, E2](../../02-requerimientos/README.md) |
 | **Última revisión** | 2026-06-10 |
-| **Estado** | Borrador |
+| **Estado** | Aprobada |
 
 ## 1. Propósito
 
@@ -18,22 +18,45 @@ Gestionar y mostrar artículos técnicos en markdown con URLs amigables, estados
 - CRUD posts (admin).
 - Render markdown → HTML seguro.
 - Slug único, generado desde título con edición manual.
-- Tags (array de strings, normalizados lowercase).
+- **Categoría fija** (enum — ver §3.1); obligatoria en cada post.
+- Contenido en **inglés** (título, excerpt, body).
 - `excerpt` para listados y meta description.
 - `cover_image_url` opcional (Supabase Storage).
 - `reading_time_minutes` calculado al guardar (~200 wpm).
 - `published_at` al publicar; `updated_at` en cada save.
-- Listado paginado + página de tag.
+- Listado paginado + filtro por categoría (`/categories/[category]`).
 - RSS en `/api/feed`.
+- **Blog vacío al lanzar** — sin seed de posts legados.
 
 ### Excluye (v1)
 
+- Tags libres / taxonomía custom.
 - Series / colecciones.
 - Comentarios.
+- Posts en español u otros idiomas.
+- Migración desde Blogger.
 - Versionado de borradores (solo última versión).
 - MDX con componentes React embebidos (v2).
 
 ## 3. Modelo de dominio
+
+### 3.1 Categorías (catálogo fijo)
+
+```typescript
+export const POST_CATEGORIES = [
+  'backend',
+  'cloud',
+  'architecture',
+  'algorithms',
+  'security',
+  'ai',
+  'devops',
+] as const;
+
+export type PostCategory = (typeof POST_CATEGORIES)[number];
+```
+
+Labels UI EN/ES en `lib/i18n/dictionary.ts` bajo `category.{id}`.
 
 ### Post
 
@@ -46,7 +69,8 @@ Gestionar y mostrar artículos técnicos en markdown con URLs amigables, estados
 | `body_md` | text | markdown fuente |
 | `body_html` | text | generado server-side al guardar (cache) |
 | `status` | enum | `draft` \| `published` |
-| `tags` | text[] | max 10, cada tag max 40 chars |
+| `category` | enum | uno de `POST_CATEGORIES`; required |
+| `locale` | text | default `'en'`; reservado v2 |
 | `cover_image_url` | string? | URL pública Storage |
 | `reading_time_minutes` | int | ≥ 1 |
 | `author_id` | uuid | FK → auth.users |
@@ -68,7 +92,7 @@ Gestionar y mostrar artículos técnicos en markdown con URLs amigables, estados
 | `/` | Home: últimos N posts + intro |
 | `/blog` | Listado paginado (12/page) |
 | `/blog/[slug]` | Artículo |
-| `/tags/[tag]` | Posts por tag |
+| `/categories/[category]` | Posts por categoría |
 | `/about` | Sobre el blog / autor |
 
 ### URL amigable — ejemplos
@@ -76,7 +100,7 @@ Gestionar y mostrar artículos técnicos en markdown con URLs amigables, estados
 ```
 /blog/heapsort-golang
 /blog/nestjs-outbox-pattern
-/tags/cryptography
+/categories/backend
 ```
 
 **Prohibido en v1:** `/blog/2018/09/...` (patrón legado Blogger).
@@ -115,7 +139,12 @@ create table public.posts (
   body_html text not null default '',
   status text not null default 'draft'
     check (status in ('draft', 'published')),
-  tags text[] not null default '{}',
+  category text not null
+    check (category in (
+      'backend', 'cloud', 'architecture', 'algorithms',
+      'security', 'ai', 'devops'
+    )),
+  locale text not null default 'en',
   cover_image_url text,
   reading_time_minutes int not null default 1,
   author_id uuid not null references auth.users(id),
@@ -127,7 +156,8 @@ create table public.posts (
 create index posts_status_published_at_idx
   on public.posts (status, published_at desc nulls last);
 
-create index posts_tags_gin_idx on public.posts using gin (tags);
+create index posts_category_idx on public.posts (category)
+  where status = 'published';
 ```
 
 ### RLS (resumen)
@@ -168,5 +198,5 @@ TOC: extraer h2/h3 en server para sidebar (opcional v1, Should).
 
 ## 10. Preguntas abiertas
 
-- ¿Tabla `slug_redirects` en v1 o v1.1?
-- ¿Soft delete vs hard delete?
+- ¿Tabla `slug_redirects` en v1 o v1.1? → **v1.1** (blog vacío, sin legado).
+- ¿Soft delete vs hard delete? → **hard delete** en v1.

@@ -8,7 +8,8 @@ Historias de usuario agrupadas por épica. Cada épica tiene spec en `docs/03-sp
 |----|----------|-----------|------|
 | E1-US01 | Como lector, quiero ver el listado de posts publicados ordenados por fecha | Must | [blog/spec](../03-specs/blog/spec.md) |
 | E1-US02 | Como lector, quiero abrir un post por URL amigable (`/blog/{slug}`) | Must | blog |
-| E1-US03 | Como lector, quiero filtrar por tag | Should | blog |
+| E1-US03 | Como lector, quiero filtrar por categoría fija | Must | blog |
+| E1-US06 | Como lector, quiero UI en EN o ES (toggle) | Must | [i18n](../03-specs/i18n/spec.md) |
 | E1-US04 | Como lector, quiero ver código con syntax highlighting | Must | blog |
 | E1-US05 | Como lector, quiero compartir con preview OG correcta | Must | [seo/spec](../03-specs/seo/spec.md) |
 

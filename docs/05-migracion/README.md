@@ -1,5 +1,7 @@
 # Migración desde Blogger
 
+> **Estado:** Backlog — no forma parte del lanzamiento v1 ([decisiones](../00-vision/decisiones.md): blog vacío).
+
 ## Inventario legado
 
 17 artículos indexados en `portafolio-2026/src/data/blog/index.ts`, categorías:

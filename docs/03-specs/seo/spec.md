@@ -5,7 +5,7 @@
 | **Código** | `app/sitemap.ts`, `app/robots.ts`, `lib/seo/`, layouts |
 | **Requerimientos** | [E3](../../02-requerimientos/README.md) |
 | **Última revisión** | 2026-06-10 |
-| **Estado** | Borrador |
+| **Estado** | Aprobada |
 
 ## 1. Propósito
 
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.makingcode.dev'),
   title: { default: 'Making Code', template: '%s | Making Code' },
   description: 'Technical writing on backend engineering, cloud, and software architecture.',
-  openGraph: { type: 'website', locale: 'es_PE', siteName: 'Making Code' },
+  openGraph: { type: 'website', locale: 'en_US', siteName: 'Making Code' },
   twitter: { card: 'summary_large_image', creator: '@andres30xed' },
   robots: { index: true, follow: true },
 };
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 | `canonical` | `/blog/{slug}` |
 | `og:image` | cover o imagen OG por defecto 1200×630 |
 | `article:published_time` | `published_at` |
-| `article:tag` | tags |
+| `article:section` | `category` (label EN) |
 
 ### JSON-LD (Article)
 
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
 - `/blog` — 0.9
 - `/about` — 0.5
 - Cada `/blog/{slug}` publicado — 0.8, `lastModified: updated_at`
-- `/tags/{tag}` — 0.6
+- `/categories/{category}` — 0.6
 
 Regenerar on publish vía `revalidatePath` / on-demand.
 
@@ -124,4 +124,4 @@ Implementar en `middleware.ts` o `next.config redirects` cuando existan slugs nu
 - [ ] Excerpt ≤ 160 caracteres
 - [ ] Cover 1200×630 o fallback OK
 - [ ] Al menos un H2 en contenido largo
-- [ ] Tags relevantes (3–5)
+- [ ] Categoría correcta del catálogo fijo

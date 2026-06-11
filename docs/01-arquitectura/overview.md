@@ -54,7 +54,7 @@ makingcode/
 │   │   ├── blog/
 │   │   │   ├── page.tsx             # Listado
 │   │   │   └── [slug]/page.tsx      # Post
-│   │   ├── tags/[tag]/page.tsx
+│   │   ├── categories/[category]/page.tsx
 │   │   └── about/page.tsx
 │   ├── (admin)/
 │   │   ├── login/page.tsx
@@ -71,6 +71,7 @@ makingcode/
 ├── lib/
 │   ├── supabase/                    # client, server, middleware
 │   ├── posts/                       # queries, mappers
+│   ├── i18n/                        # dictionary EN/ES, locale cookie
 │   └── seo/                         # metadata helpers
 ├── supabase/
 │   └── migrations/

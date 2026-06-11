@@ -64,8 +64,8 @@
 - Comentarios públicos.
 - Multi-autor / CMS para terceros.
 - Newsletter integrada.
-- i18n completo EN/ES (preparar estructura, no bloquear v1).
-- Reescritura masiva de los 17 posts legados (migración opcional en fase 3).
+- Posts bilingües (contenido solo en **inglés**; UI sí EN/ES — ver [decisiones.md](./decisiones.md)).
+- Migración de los 17 posts legados (**blog vacío** al lanzar).
 
 ## Relación con andresed.dev
 
@@ -79,12 +79,14 @@ andresed.dev (/blog)          makingcode.dev
 Fase 1: enlaces manuales o feed XML consumido por Astro (opcional).  
 Fase 2: API o webhook al publicar → actualizar índice en portafolio.
 
-## Decisiones pendientes de tu validación
+## Decisiones aprobadas
 
-1. ¿Migrar los 17 posts a markdown en v1 o dejar legado en Blogger hasta fase 3?
-2. ¿Idioma principal del blog: ES, EN o bilingüe desde v1?
-3. ¿Auth admin: magic link (Supabase) o email/password?
-4. ¿Categorías fijas (backend, cloud, algorithms…) o solo tags libres?
+Ver [decisiones.md](./decisiones.md):
+
+1. **Blog vacío** — sin migración legado en v1.
+2. **Contenido en inglés**; **UI bilingüe** EN/ES.
+3. **Auth:** email + contraseña (sin registro público).
+4. **Categorías fijas** — catálogo de 7 categorías técnicas.
 
 ## Referencias en el repo del portafolio
 

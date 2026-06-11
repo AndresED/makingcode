@@ -6,7 +6,8 @@
 - [x] Arquitectura y ADR-001
 - [x] Specs blog, auth, SEO
 - [x] Design system
-- [ ] **Tu revisión** → specs a estado **Aprobada**
+- [x] Decisiones de producto aprobadas ([decisiones.md](../00-vision/decisiones.md))
+- [x] Specs blog, auth, seo, i18n → **Aprobada**
 
 ## Fase 1 — Scaffold + infra
 
@@ -22,15 +23,15 @@
 
 - [ ] Home + listado + post detail
 - [ ] Markdown pipeline + syntax highlight
-- [ ] Tags, paginación
+- [ ] Categorías, paginación, UI i18n EN/ES
 - [ ] SEO: metadata, sitemap, robots, JSON-LD
 - [ ] RSS feed
 
-**Entregable:** posts seed publicados visibles; Lighthouse SEO 100.
+**Entregable:** lectura pública OK con blog vacío + empty states; Lighthouse SEO 100.
 
 ## Fase 3 — Admin
 
-- [ ] Login Supabase (magic link o password)
+- [ ] Login Supabase (email + password)
 - [ ] Dashboard listado
 - [ ] Editor markdown + preview
 - [ ] Publish / unpublish + revalidate
@@ -47,17 +48,17 @@
 
 **Entregable:** blog en producción.
 
-## Fase 5 — Migración y portafolio
+## Fase 5 — Contenido y portafolio
 
-- [ ] Redirects 301 legado (subset)
-- [ ] 1–2 posts nuevos de marca
+- [ ] Primeros posts nuevos (inglés)
 - [ ] (Opcional) Feed consumido por andresed.dev
+- [ ] (Backlog) Migración legado Blogger + 301
 
 ## Fase 6 — Mejoras
 
 - TOC sidebar, copy code, búsqueda
 - Programación de publicación
-- i18n EN/ES
+- Posts multilingües
 - MDX components
 
 ---
