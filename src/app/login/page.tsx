@@ -4,6 +4,8 @@ import { Logo } from '@/components/brand/logo';
 import { LoginForm } from '@/components/login-form';
 import { getAdminSession } from '@/lib/auth/session';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Login',
   robots: { index: false, follow: false },
