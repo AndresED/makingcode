@@ -34,8 +34,8 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale}>
-      <body className="min-h-screen">
+    <html lang={locale} suppressHydrationWarning>
+      <body className="min-h-screen" suppressHydrationWarning>
         <SiteHeader locale={locale} />
         <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">{children}</main>
         <SiteFooter locale={locale} />

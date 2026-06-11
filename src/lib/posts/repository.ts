@@ -4,6 +4,16 @@ import type { PostCategory } from './categories';
 import { POSTS_PER_PAGE } from './constants';
 import type { PostSummary, PostDetail } from './types';
 
+function formatSupabaseError(error: { message: string; cause?: unknown }): Error {
+  const cause =
+    error.cause instanceof Error
+      ? error.cause.message
+      : error.cause
+        ? String(error.cause)
+        : '';
+  return new Error(cause ? `${error.message}: ${cause}` : error.message);
+}
+
 const summaryColumns =
   'id, slug, title, excerpt, category, cover_image_url, reading_time_minutes, published_at';
 
@@ -40,7 +50,7 @@ export async function listPublishedPosts(options?: {
   const { data, error, count } = await query;
 
   if (error) {
-    throw new Error(error.message);
+    throw formatSupabaseError(error);
   }
 
   const total = count ?? 0;
@@ -63,7 +73,7 @@ export async function getPublishedPostBySlug(slug: string): Promise<PostDetail |
     .maybeSingle();
 
   if (error) {
-    throw new Error(error.message);
+    throw formatSupabaseError(error);
   }
 
   return data as PostDetail | null;
@@ -77,7 +87,7 @@ export async function listPublishedSlugs(): Promise<string[]> {
     .eq('status', 'published');
 
   if (error) {
-    throw new Error(error.message);
+    throw formatSupabaseError(error);
   }
 
   return (data ?? []).map((row) => row.slug);
@@ -91,7 +101,7 @@ export async function listAllPostsForAdmin(): Promise<PostDetail[]> {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    throw new Error(error.message);
+    throw formatSupabaseError(error);
   }
 
   return (data ?? []) as PostDetail[];
@@ -102,7 +112,7 @@ export async function getPostByIdForAdmin(id: string): Promise<PostDetail | null
   const { data, error } = await supabase.from('posts').select('*').eq('id', id).maybeSingle();
 
   if (error) {
-    throw new Error(error.message);
+    throw formatSupabaseError(error);
   }
 
   return data as PostDetail | null;
