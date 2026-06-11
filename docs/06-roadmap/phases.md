@@ -17,28 +17,29 @@
 - [x] Lib: categorías, i18n, auth allowlist, SEO site config
 - [x] Rutas placeholder: `/`, `/blog`, `/categories/[category]`, `/about`, `/login`, `/dashboard`
 - [x] `sitemap.ts`, `robots.ts`
-- [ ] Proyecto Supabase creado en cloud (manual)
+- [x] Proyecto Supabase creado en cloud (`whtyatshxvdvdmpehaoi`)
+- [x] Migración `init_schema` + `harden_functions` aplicada
 - [x] CI: lint + typecheck en GitHub Actions
 
 **Entregable:** app corre en local; BD migrada; sin UI pulida.
 
 ## Fase 2 — Lectura pública
 
-- [ ] Home + listado + post detail
-- [ ] Markdown pipeline + syntax highlight
-- [ ] Categorías, paginación, UI i18n EN/ES
-- [ ] SEO: metadata, sitemap, robots, JSON-LD
-- [ ] RSS feed
+- [x] Home + listado + post detail
+- [x] Markdown pipeline (unified + rehype-sanitize)
+- [x] Categorías, paginación
+- [x] SEO: metadata, sitemap dinámico, JSON-LD
+- [x] RSS feed (`/api/feed`)
 
 **Entregable:** lectura pública OK con blog vacío + empty states; Lighthouse SEO 100.
 
 ## Fase 3 — Admin
 
-- [ ] Login Supabase (email + password)
-- [ ] Dashboard listado
-- [ ] Editor markdown + preview
-- [ ] Publish / unpublish + revalidate
-- [ ] Upload cover a Storage
+- [x] Login Supabase (email + password)
+- [x] Dashboard listado
+- [x] Editor markdown + save/publish/unpublish
+- [x] Revalidate on publish
+- [ ] Upload cover a Storage (URL manual OK en v1)
 
 **Entregable:** puedes publicar un post end-to-end sin tocar BD.
 

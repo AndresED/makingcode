@@ -1,10 +1,14 @@
 # Supabase setup
 
-## 1. Create project
+## 1. Project
 
-1. [supabase.com](https://supabase.com) → New project.
-2. Copy **Project URL** and **anon key** → `.env.local`.
-3. Copy **service_role** key → `.env.local` (server only).
+**Ref:** `whtyatshxvdvdmpehaoi` · **URL:** `https://whtyatshxvdvdmpehaoi.supabase.co`
+
+Local env (see `.env.example`):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (recommended) or legacy anon JWT
+- `SUPABASE_SERVICE_ROLE_KEY` — server only, from Dashboard → API Keys
 
 ## 2. Run migration
 

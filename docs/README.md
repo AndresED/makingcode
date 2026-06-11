@@ -40,6 +40,7 @@ flowchart LR
 | 4 | [Design system](./04-diseno/design-system.md) | UI alineada a andresed.dev |
 | 5 | [Migración legado](./05-migracion/README.md) | 17 posts históricos |
 | 6 | [Roadmap por fases](./06-roadmap/phases.md) | Orden de entrega |
+| 7 | [MCP Vercel + Supabase](./07-infra/mcp-setup.md) | Link, env vars, migración |
 
 ## Convenciones
 

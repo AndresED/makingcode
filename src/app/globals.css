@@ -39,3 +39,79 @@
     color: white;
   }
 }
+
+.post-prose {
+  max-width: none;
+  color: var(--color-ink-body);
+  line-height: 1.8;
+}
+
+.post-prose :where(h2, h3, h4) {
+  color: var(--color-ink);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  scroll-margin-top: 5rem;
+}
+
+.post-prose h2 {
+  font-size: 1.5rem;
+}
+
+.post-prose h3 {
+  font-size: 1.25rem;
+}
+
+.post-prose p {
+  margin-bottom: 1.25rem;
+}
+
+.post-prose a {
+  color: var(--color-meta-500);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-prose a:hover {
+  color: var(--color-ink);
+}
+
+.post-prose ul,
+.post-prose ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.post-prose li {
+  margin-bottom: 0.35rem;
+}
+
+.post-prose pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: var(--color-dark-800);
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.post-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.post-prose :not(pre) > code {
+  border-radius: 0.25rem;
+  background: var(--color-dark-800);
+  padding: 0.15rem 0.35rem;
+}
+
+.post-prose blockquote {
+  margin: 1.5rem 0;
+  border-left: 3px solid var(--color-accent-500);
+  padding-left: 1rem;
+  color: var(--color-ink-muted);
+}
