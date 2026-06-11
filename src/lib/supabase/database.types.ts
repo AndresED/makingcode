@@ -92,6 +92,7 @@ export type Database = {
           locale: string;
           status: string;
           subscribed_at: string;
+          unsubscribe_token: string;
         };
         Insert: {
           admin_seen_at?: string | null;
@@ -100,6 +101,7 @@ export type Database = {
           locale?: string;
           status?: string;
           subscribed_at?: string;
+          unsubscribe_token?: string;
         };
         Update: {
           admin_seen_at?: string | null;
@@ -108,6 +110,7 @@ export type Database = {
           locale?: string;
           status?: string;
           subscribed_at?: string;
+          unsubscribe_token?: string;
         };
         Relationships: [];
       };

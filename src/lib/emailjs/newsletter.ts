@@ -1,4 +1,6 @@
 import type { Locale } from '@/lib/i18n/dictionary';
+import { t } from '@/lib/i18n/dictionary';
+import { buildNewsletterUnsubscribeUrl } from '@/lib/newsletter/unsubscribe-url';
 import { siteConfig } from '@/lib/seo/site';
 import { sendEmailJsTemplate } from './client';
 import { getEmailJsConfig } from './config';
@@ -7,12 +9,14 @@ import { getEmailJsConfig } from './config';
 export async function sendNewsletterWelcomeEmail(
   subscriberEmail: string,
   locale: Locale,
+  unsubscribeToken: string,
 ): Promise<void> {
   const config = getEmailJsConfig();
   if (!config) return;
 
   const siteUrl = siteConfig.url;
   const siteName = siteConfig.name;
+  const unsubscribeUrl = buildNewsletterUnsubscribeUrl(unsubscribeToken);
   const welcomeSubject =
     locale === 'es' ? `Te suscribiste a ${siteName}` : `You subscribed to ${siteName}`;
   const welcomeMessage =
@@ -31,6 +35,8 @@ export async function sendNewsletterWelcomeEmail(
       site_url: siteUrl,
       subject: welcomeSubject,
       message: welcomeMessage,
+      unsubscribe_url: unsubscribeUrl,
+      unsubscribe_text: t(locale, 'newsletter.unsubscribeLink'),
     },
     config.publicKey,
   );

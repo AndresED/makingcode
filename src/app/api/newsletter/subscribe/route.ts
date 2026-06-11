@@ -21,5 +21,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status });
   }
 
-  return NextResponse.json({ status: result.status });
+  return NextResponse.json({
+    status: result.status,
+    unsubscribe_token: result.unsubscribe_token,
+  });
 }

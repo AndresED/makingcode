@@ -59,6 +59,12 @@ export const dictionary = {
     'newsletter.already': 'You are already subscribed.',
     'newsletter.error': 'Something went wrong. Try again later.',
     'newsletter.privacy': 'One email when a post goes live. Unsubscribe anytime.',
+    'newsletter.unsubscribeLink': 'Unsubscribe',
+    'newsletter.unsubscribeTitle': 'Newsletter unsubscribe',
+    'newsletter.unsubscribeSuccess':
+      'You have been unsubscribed. You will no longer receive emails from Making Code.',
+    'newsletter.unsubscribeAlready': 'This email is already unsubscribed.',
+    'newsletter.unsubscribeInvalid': 'This unsubscribe link is invalid or has expired.',
     'author.writtenBy': 'Written by',
     'author.about': 'About the author',
     'author.bio':
@@ -166,6 +172,12 @@ export const dictionary = {
     'newsletter.already': 'Ya estás suscrito.',
     'newsletter.error': 'Algo falló. Intenta de nuevo más tarde.',
     'newsletter.privacy': 'Un email cuando salga un artículo. Puedes darte de baja cuando quieras.',
+    'newsletter.unsubscribeLink': 'Darse de baja',
+    'newsletter.unsubscribeTitle': 'Baja del newsletter',
+    'newsletter.unsubscribeSuccess':
+      'Te diste de baja correctamente. Ya no recibirás correos de Making Code.',
+    'newsletter.unsubscribeAlready': 'Este correo ya estaba dado de baja.',
+    'newsletter.unsubscribeInvalid': 'Este enlace de baja no es válido o ha expirado.',
     'author.writtenBy': 'Escrito por',
     'author.about': 'Sobre el autor',
     'author.bio':

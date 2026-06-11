@@ -8,8 +8,12 @@ create table if not exists public.newsletter_subscribers (
   status text not null default 'active' check (status in ('active', 'unsubscribed')),
   subscribed_at timestamptz not null default now(),
   admin_seen_at timestamptz,
+  unsubscribe_token uuid not null default gen_random_uuid(),
   constraint newsletter_subscribers_email_unique unique (email)
 );
+
+create unique index if not exists newsletter_subscribers_unsubscribe_token_idx
+  on public.newsletter_subscribers (unsubscribe_token);
 
 create index if not exists newsletter_subscribers_status_idx
   on public.newsletter_subscribers (status, subscribed_at desc);

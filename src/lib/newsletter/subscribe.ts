@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/service';
+import { createNewsletterUnsubscribeToken } from './token';
 
 const subscribeSchema = z.object({
   email: z.string().trim().email().max(320),
@@ -10,7 +11,7 @@ const subscribeSchema = z.object({
 export type SubscribeInput = z.infer<typeof subscribeSchema>;
 
 export type SubscribeResult =
-  | { ok: true; status: 'subscribed' | 'already_subscribed' }
+  | { ok: true; status: 'subscribed' | 'already_subscribed'; unsubscribe_token?: string }
   | { ok: false; error: string };
 
 export async function subscribeToNewsletter(input: unknown): Promise<SubscribeResult> {
@@ -28,7 +29,7 @@ export async function subscribeToNewsletter(input: unknown): Promise<SubscribeRe
 
   const { data: existing, error: selectError } = await supabase
     .from('newsletter_subscribers')
-    .select('id, status')
+    .select('id, status, unsubscribe_token')
     .eq('email', email)
     .maybeSingle();
 
@@ -44,21 +45,30 @@ export async function subscribeToNewsletter(input: unknown): Promise<SubscribeRe
   }
 
   if (existing) {
+    const token = existing.unsubscribe_token ?? createNewsletterUnsubscribeToken();
     const { error: updateError } = await supabase
       .from('newsletter_subscribers')
-      .update({ status: 'active', locale: parsed.data.locale })
+      .update({
+        status: 'active',
+        locale: parsed.data.locale,
+        admin_seen_at: null,
+        unsubscribe_token: token,
+      })
       .eq('id', existing.id);
 
     if (updateError) return { ok: false, error: 'server_error' };
-  } else {
-    const { error: insertError } = await supabase.from('newsletter_subscribers').insert({
-      email,
-      locale: parsed.data.locale,
-      status: 'active',
-    });
-
-    if (insertError) return { ok: false, error: 'server_error' };
+    return { ok: true, status: 'subscribed', unsubscribe_token: token };
   }
 
-  return { ok: true, status: 'subscribed' };
+  const token = createNewsletterUnsubscribeToken();
+  const { error: insertError } = await supabase.from('newsletter_subscribers').insert({
+    email,
+    locale: parsed.data.locale,
+    status: 'active',
+    unsubscribe_token: token,
+  });
+
+  if (insertError) return { ok: false, error: 'server_error' };
+
+  return { ok: true, status: 'subscribed', unsubscribe_token: token };
 }

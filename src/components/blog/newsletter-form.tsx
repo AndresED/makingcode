@@ -35,13 +35,21 @@ export function NewsletterForm({ locale, variant = 'card' }: NewsletterFormProps
         return;
       }
 
-      const data = (await response.json()) as { status?: string };
+      const data = (await response.json()) as {
+        status?: string;
+        unsubscribe_token?: string;
+      };
       const isNew = data.status !== 'already_subscribed';
+      const subscribedEmail = email.trim();
       setStatus(isNew ? 'success' : 'already');
       setEmail('');
 
-      if (isNew) {
-        await sendNewsletterWelcomeEmail(email, locale).catch(() => undefined);
+      if (isNew && data.unsubscribe_token) {
+        await sendNewsletterWelcomeEmail(
+          subscribedEmail,
+          locale,
+          data.unsubscribe_token,
+        ).catch(() => undefined);
       }
     } catch {
       setStatus('error');
