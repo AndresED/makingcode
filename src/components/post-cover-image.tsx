@@ -21,6 +21,19 @@ export function PostCoverImage({
   priority = false,
   sizes = '100vw',
 }: PostCoverImageProps) {
+  if (src.startsWith('/')) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className={className}
+        sizes={sizes}
+        priority={priority}
+      />
+    );
+  }
+
   let hostname = '';
   try {
     hostname = new URL(src).hostname;

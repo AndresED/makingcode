@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed:posts": "npx tsx scripts/seed-blog-posts.mjs",
+    "seed:covers": "npx tsx scripts/seed-blog-posts.mjs -- --covers-only",
     "seed:publicaciones": "npx tsx scripts/seed-publicaciones.mjs"
   },
   "dependencies": {

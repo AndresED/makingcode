@@ -2,15 +2,17 @@
  * Seed tutorial posts from docs/samples/nestjs-enterprise/ into Supabase.
  *
  * Usage:
- *   node scripts/seed-blog-posts.mjs
- *   node scripts/seed-blog-posts.mjs --dry-run
- *   node scripts/seed-blog-posts.mjs --slug building-hexagonal-module-nestjs
+ *   npm run seed:posts
+ *   npm run seed:posts -- --dry-run
+ *   npm run seed:posts -- --slug building-hexagonal-module-nestjs
+ *   npm run seed:posts -- --covers-only   # only update cover_image_url + series
+ *
+ * Cover images: place files in public/images/ and set coverImage in posts.manifest.json
+ * (e.g. "/images/hexagonal.webp").
  *
  * Requires in .env.local:
  *   NEXT_PUBLIC_SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
- *
- * Optional: ADMIN_EMAIL (default andres30xed@gmail.com) for author_id
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -52,9 +54,26 @@ function excerptFromMarkdown(markdown, max = 300) {
   return `${plain.slice(0, max - 1).trimEnd()}…`;
 }
 
+function slugifyEs(title) {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
+}
+
 async function renderMarkdown(markdown) {
   const { markdownToHtml } = await import('../src/lib/markdown/render.ts');
   return markdownToHtml(markdown);
+}
+
+function resolveCoverImage(entry) {
+  const value = entry.coverImage ?? entry.cover_image_url ?? null;
+  if (!value) return null;
+  if (value.startsWith('/') || value.startsWith('http')) return value;
+  return `/images/${value}`;
 }
 
 async function main() {
@@ -64,6 +83,7 @@ async function main() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const adminEmail = process.env.ADMIN_EMAIL || 'andres30xed@gmail.com';
   const dryRun = process.argv.includes('--dry-run');
+  const coversOnly = process.argv.includes('--covers-only');
   const slugFilter = process.argv.find((a) => a.startsWith('--slug='))?.split('=')[1]
     ?? (process.argv.includes('--slug') ? process.argv[process.argv.indexOf('--slug') + 1] : null);
 
@@ -102,64 +122,100 @@ async function main() {
   }
 
   console.log(`Author: ${author.email} (${author.id})`);
-  console.log(`Seeding ${posts.length} post(s)${dryRun ? ' [DRY RUN]' : ''}…\n`);
+  console.log(
+    `${coversOnly ? 'Updating covers/series' : 'Seeding'} ${posts.length} post(s)${dryRun ? ' [DRY RUN]' : ''}…\n`,
+  );
 
   for (const entry of posts) {
+    const cover_image_url = resolveCoverImage(entry);
+    const series_slug = entry.series_slug ?? null;
+    const series_order = entry.series_order ?? null;
+
+    const { data: existing } = await supabase
+      .from('posts')
+      .select('id, slug_en')
+      .eq('slug_en', entry.slug)
+      .maybeSingle();
+
+    if (coversOnly) {
+      if (!existing) {
+        console.warn(`⊘ ${entry.slug}: post not found in DB (run full seed first)`);
+        continue;
+      }
+
+      const patch = {
+        cover_image_url,
+        series_slug,
+        series_order,
+      };
+
+      if (dryRun) {
+        console.log(`[dry-run] PATCH ${entry.slug} cover=${cover_image_url ?? '—'}`);
+        continue;
+      }
+
+      const { error } = await supabase.from('posts').update(patch).eq('id', existing.id);
+      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Covers/series ${entry.slug}`);
+      continue;
+    }
+
     const bodyPath = join(samplesDir, entry.bodyFile);
     if (!existsSync(bodyPath)) {
       console.error(`Missing body file: ${entry.bodyFile}`);
       continue;
     }
 
-    const body_md = readFileSync(bodyPath, 'utf8');
-    const excerpt = entry.excerpt || excerptFromMarkdown(body_md);
-    const body_html = await renderMarkdown(body_md);
-    const reading_time_minutes = estimateReadingTime(body_md);
+    const body_md_en = readFileSync(bodyPath, 'utf8');
+    const excerpt_en = entry.excerpt || excerptFromMarkdown(body_md_en);
+    const body_html_en = await renderMarkdown(body_md_en);
+    const body_html_es = body_html_en;
+    const reading_time_minutes = estimateReadingTime(body_md_en);
+
+    const title_en = entry.title;
+    const title_es = entry.title_es ?? title_en;
+    const slug_en = entry.slug;
+    const slug_es = entry.slug_es ?? `${slugifyEs(title_es)}-es`;
 
     const row = {
-      title: entry.title,
-      slug: entry.slug,
-      excerpt,
-      body_md,
-      body_html,
+      title_en,
+      title_es,
+      slug_en,
+      slug_es,
+      excerpt_en,
+      excerpt_es: entry.excerpt_es ?? excerpt_en,
+      body_md_en,
+      body_md_es: entry.bodyFileEs ? readFileSync(join(samplesDir, entry.bodyFileEs), 'utf8') : body_md_en,
+      body_html_en,
+      body_html_es: entry.bodyFileEs
+        ? await renderMarkdown(readFileSync(join(samplesDir, entry.bodyFileEs), 'utf8'))
+        : body_html_es,
       category: entry.category,
-      cover_image_url: entry.cover_image_url ?? null,
+      cover_image_url,
+      series_slug,
+      series_order,
       reading_time_minutes,
       status: 'published',
       published_at: new Date().toISOString(),
       author_id: author.id,
-      locale: 'en',
     };
 
-    const { data: existing } = await supabase
-      .from('posts')
-      .select('id, slug')
-      .eq('slug', entry.slug)
-      .maybeSingle();
-
     if (dryRun) {
-      console.log(`[dry-run] ${existing ? 'UPDATE' : 'INSERT'} ${entry.slug} (${reading_time_minutes} min)`);
+      console.log(
+        `[dry-run] ${existing ? 'UPDATE' : 'INSERT'} ${slug_en} cover=${cover_image_url ?? 'fallback'} series=${series_slug ?? '—'}`,
+      );
       continue;
     }
 
     if (existing) {
       const { error } = await supabase.from('posts').update(row).eq('id', existing.id);
-      if (error) {
-        console.error(`✗ ${entry.slug}: ${error.message}`);
-      } else {
-        console.log(`✓ Updated /blog/${entry.slug}`);
-      }
+      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Updated /blog/${slug_en}`);
     } else {
       const { error } = await supabase.from('posts').insert(row);
-      if (error) {
-        console.error(`✗ ${entry.slug}: ${error.message}`);
-      } else {
-        console.log(`✓ Published /blog/${entry.slug}`);
-      }
+      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Published /blog/${slug_en}`);
     }
   }
 
-  console.log('\nDone. Restart dev server or wait for revalidate if pages are cached.');
+  console.log('\nDone. Covers live under public/images → /images/*.webp on the site.');
 }
 
 main().catch((err) => {

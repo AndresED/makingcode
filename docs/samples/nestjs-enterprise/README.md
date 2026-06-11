@@ -4,6 +4,23 @@ Artículos tipo **tutorial** (enseñan conceptos e implementación paso a paso),
 
 [https://github.com/AndresED/nestjs-enterprise-starter/tree/main/docs/infrastructure](https://github.com/AndresED/nestjs-enterprise-starter/tree/main/docs/infrastructure)
 
+## Covers (`public/images/`)
+
+Coloca las portadas en `public/images/` y referencia en `posts.manifest.json`:
+
+```json
+"coverImage": "/images/hexagonal.webp"
+```
+
+| Imagen | Post |
+|--------|------|
+| `hexagonal.webp` | Building Your First Hexagonal Module |
+| `cqrs.webp` | Implementing CQRS |
+| `event-drive.webp` | Outbox Pattern |
+| `multitenant.webp` | Multitenancy |
+
+Posts sin `coverImage` usan el fallback por categoría en la UI. **Publicar requiere cover** en el dashboard.
+
 ## Publicar en el blog (automático)
 
 Con `.env.local` configurado (`SUPABASE_SERVICE_ROLE_KEY`):
@@ -17,6 +34,7 @@ Opciones:
 ```bash
 npm run seed:posts -- --dry-run
 npm run seed:posts -- --slug building-hexagonal-module-nestjs
+npm run seed:posts -- --covers-only
 ```
 
 El script crea o actualiza posts **publicados** en Supabase. Si el slug ya existe, hace update.

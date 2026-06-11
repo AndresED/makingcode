@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import type { Locale } from '@/lib/i18n/dictionary';
 import type { LocalizedPost } from '@/lib/posts/types';
+import { toAbsoluteAssetUrl } from './asset-url';
 import { siteConfig } from './site';
 
 export function buildPostMetadata(post: LocalizedPost, locale: Locale): Metadata {
   const description = post.excerpt.slice(0, 160);
-  const ogImage =
-    post.cover_image_url ?? `${siteConfig.url}/blog/${post.slug}/opengraph-image`;
+  const ogImage = post.cover_image_url
+    ? toAbsoluteAssetUrl(post.cover_image_url)
+    : `${siteConfig.url}/blog/${post.slug}/opengraph-image`;
 
   return {
     title: post.title,
@@ -55,7 +57,7 @@ export function buildArticleJsonLd(
       name: siteConfig.author.name,
       url: siteConfig.author.url,
     },
-    image: post.cover_image_url ?? undefined,
+    image: post.cover_image_url ? toAbsoluteAssetUrl(post.cover_image_url) : undefined,
     publisher: {
       '@type': 'Organization',
       name: siteConfig.name,
