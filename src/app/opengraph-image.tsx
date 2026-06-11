@@ -69,7 +69,7 @@ export default function OpenGraphImage() {
           </div>
         </div>
 
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div
             style={{
               fontSize: 48,
