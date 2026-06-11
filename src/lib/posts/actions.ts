@@ -48,13 +48,20 @@ function isMissingSeriesColumnsError(message: string | undefined): boolean {
   return lower.includes('series_slug') || lower.includes('series_order');
 }
 
-function revalidateBlogPaths(slugs: string[]) {
+function revalidateBlogPaths(slugs: string[], seriesSlug?: string | null) {
   revalidatePath('/');
   revalidatePath('/blog');
+  revalidatePath('/about');
   revalidatePath('/sitemap.xml');
   revalidatePath('/api/feed');
+  for (const category of POST_CATEGORIES) {
+    revalidatePath(`/categories/${category}`);
+  }
   for (const slug of slugs) {
     revalidatePath(`/blog/${slug}`);
+  }
+  if (seriesSlug) {
+    revalidatePath(`/series/${seriesSlug}`);
   }
 }
 
@@ -157,7 +164,7 @@ export async function savePostAction(
     }
 
     if (error) return { error: error.message };
-    revalidateBlogPaths([slugs.slug_en, slugs.slug_es]);
+    revalidateBlogPaths([slugs.slug_en, slugs.slug_es], series_slug || null);
     return { id: postId };
   }
 
@@ -187,7 +194,7 @@ export async function savePostAction(
 
   if (error) return { error: error.message };
   if (!data) return { error: 'Failed to create post' };
-  revalidateBlogPaths([slugs.slug_en, slugs.slug_es]);
+  revalidateBlogPaths([slugs.slug_en, slugs.slug_es], series_slug || null);
   redirect(`/dashboard/posts/${data.id}/edit`);
 }
 
@@ -198,10 +205,14 @@ export async function publishPostAction(postId: string): Promise<{ error?: strin
   const supabase = await createClient();
   const { data: post } = await supabase
     .from('posts')
-    .select('slug_en, slug_es')
+    .select('slug_en, slug_es, cover_image_url, series_slug')
     .eq('id', postId)
     .single();
   if (!post) return { error: 'Post not found' };
+
+  if (!post.cover_image_url?.trim()) {
+    return { error: 'Cover image is required before publishing.' };
+  }
 
   const { error } = await supabase
     .from('posts')
@@ -212,7 +223,7 @@ export async function publishPostAction(postId: string): Promise<{ error?: strin
     .eq('id', postId);
 
   if (error) return { error: error.message };
-  revalidateBlogPaths([post.slug_en, post.slug_es]);
+  revalidateBlogPaths([post.slug_en, post.slug_es], post.series_slug);
   return {};
 }
 
@@ -223,7 +234,7 @@ export async function unpublishPostAction(postId: string): Promise<{ error?: str
   const supabase = await createClient();
   const { data: post } = await supabase
     .from('posts')
-    .select('slug_en, slug_es')
+    .select('slug_en, slug_es, series_slug')
     .eq('id', postId)
     .single();
   if (!post) return { error: 'Post not found' };
@@ -234,7 +245,7 @@ export async function unpublishPostAction(postId: string): Promise<{ error?: str
     .eq('id', postId);
 
   if (error) return { error: error.message };
-  revalidateBlogPaths([post.slug_en, post.slug_es]);
+  revalidateBlogPaths([post.slug_en, post.slug_es], post.series_slug);
   return {};
 }
 
@@ -245,14 +256,14 @@ export async function deletePostAction(postId: string): Promise<{ error?: string
   const supabase = await createClient();
   const { data: post } = await supabase
     .from('posts')
-    .select('slug_en, slug_es')
+    .select('slug_en, slug_es, series_slug')
     .eq('id', postId)
     .single();
 
   const { error } = await supabase.from('posts').delete().eq('id', postId);
   if (error) return { error: error.message };
 
-  if (post) revalidateBlogPaths([post.slug_en, post.slug_es]);
+  if (post) revalidateBlogPaths([post.slug_en, post.slug_es], post.series_slug);
   redirect('/dashboard');
 }
 

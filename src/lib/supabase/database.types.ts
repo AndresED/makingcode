@@ -84,6 +84,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      newsletter_subscribers: {
+        Row: {
+          admin_seen_at: string | null;
+          email: string;
+          id: string;
+          locale: string;
+          status: string;
+          subscribed_at: string;
+        };
+        Insert: {
+          admin_seen_at?: string | null;
+          email: string;
+          id?: string;
+          locale?: string;
+          status?: string;
+          subscribed_at?: string;
+        };
+        Update: {
+          admin_seen_at?: string | null;
+          email?: string;
+          id?: string;
+          locale?: string;
+          status?: string;
+          subscribed_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;

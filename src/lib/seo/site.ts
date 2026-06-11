@@ -1,6 +1,8 @@
+import { resolveSiteUrl } from './resolve-site-url';
+
 export const siteConfig = {
   name: 'Making Code',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  url: resolveSiteUrl(),
   description:
     'Senior Backend Engineer writing about NestJS, AWS, and distributed systems built in production.',
   author: {

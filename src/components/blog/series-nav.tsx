@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
+import { formatSeriesName } from '@/lib/posts/format-series-name';
 import type { SeriesPostSummary } from '@/lib/posts/types';
 
 interface SeriesNavProps {
@@ -22,9 +23,17 @@ export function SeriesNav({ seriesSlug, posts, currentPostId, locale }: SeriesNa
       aria-label={t(locale, 'article.series')}
       className="mb-8 rounded-2xl border border-accent-500/20 bg-accent-500/5 p-5"
     >
-      <p className="label-caps mb-3 text-accent-400">
-        {t(locale, 'article.series')} · {formatSeriesName(seriesSlug)}
-      </p>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="label-caps text-accent-400">
+          {t(locale, 'article.series')} · {formatSeriesName(seriesSlug)}
+        </p>
+        <Link
+          href={`/series/${seriesSlug}`}
+          className="text-xs text-ink-muted transition-colors duration-150 ease-out hover:text-ink"
+        >
+          {t(locale, 'article.viewSeries')} →
+        </Link>
+      </div>
       <ol className="mb-4 space-y-1">
         {posts.map((post, i) => {
           const active = post.id === currentPostId;
@@ -65,11 +74,4 @@ export function SeriesNav({ seriesSlug, posts, currentPostId, locale }: SeriesNa
       </div>
     </nav>
   );
-}
-
-function formatSeriesName(slug: string): string {
-  return slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
 }

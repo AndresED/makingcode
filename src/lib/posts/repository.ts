@@ -224,6 +224,30 @@ export async function listRelatedPosts(
   );
 }
 
+export async function listPublishedPostsInSeries(
+  seriesSlug: string,
+  locale?: Locale,
+): Promise<PostSummary[]> {
+  const resolvedLocale = locale ?? (await getLocale());
+  const supabase = createAnonClient();
+  const { data, error } = await supabase
+    .from('posts')
+    .select(recordColumnsWithSeries)
+    .eq('status', 'published')
+    .eq('series_slug', seriesSlug)
+    .order('series_order', { ascending: true, nullsFirst: false })
+    .order('published_at', { ascending: true });
+
+  if (error) {
+    if (error.message.includes('series_slug')) return [];
+    throw formatSupabaseError(error);
+  }
+
+  return ((data ?? []) as PostRecord[]).map((row) =>
+    toSummary(localizePost(row, resolvedLocale)),
+  );
+}
+
 export async function listSeriesPosts(
   seriesSlug: string,
   locale?: Locale,

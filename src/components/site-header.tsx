@@ -9,9 +9,14 @@ import { siteConfig } from '@/lib/seo/site';
 interface SiteHeaderProps {
   locale: Locale;
   isAdmin?: boolean;
+  unreadNewsletterCount?: number;
 }
 
-export function SiteHeader({ locale, isAdmin = false }: SiteHeaderProps) {
+export function SiteHeader({
+  locale,
+  isAdmin = false,
+  unreadNewsletterCount = 0,
+}: SiteHeaderProps) {
   const nav = [
     { href: '/', label: t(locale, 'nav.home') },
     { href: '/blog', label: t(locale, 'nav.blog') },
@@ -55,13 +60,17 @@ export function SiteHeader({ locale, isAdmin = false }: SiteHeaderProps) {
         <div className="flex items-center gap-2">
           {isAdmin ? (
             <div className="hidden lg:block">
-              <AdminNav locale={locale} />
+              <AdminNav locale={locale} unreadNewsletterCount={unreadNewsletterCount} />
             </div>
           ) : null}
           <div className="hidden lg:block">
             <LocaleToggle locale={locale} />
           </div>
-          <MobileNav locale={locale} isAdmin={isAdmin} />
+          <MobileNav
+            locale={locale}
+            isAdmin={isAdmin}
+            unreadNewsletterCount={unreadNewsletterCount}
+          />
         </div>
       </div>
     </header>

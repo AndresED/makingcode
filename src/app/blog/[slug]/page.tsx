@@ -6,6 +6,8 @@ import { BackToTop } from '@/components/blog/back-to-top';
 import { CodeCopyEnhancer } from '@/components/blog/code-copy-enhancer';
 import { PostToc } from '@/components/blog/post-toc';
 import { ReadingProgress } from '@/components/blog/reading-progress';
+import { NewsletterForm } from '@/components/blog/newsletter-form';
+import { PostComments } from '@/components/blog/post-comments';
 import { RelatedPosts } from '@/components/blog/related-posts';
 import { SeriesNav } from '@/components/blog/series-nav';
 import { PostCoverFallback } from '@/components/post-cover-fallback';
@@ -149,6 +151,8 @@ export default async function PostPage({ params }: PostPageProps) {
               url: `${siteConfig.url}/blog/${post.slug}`,
             }}
           />
+          <NewsletterForm locale={locale} variant="inline" />
+          <PostComments locale={locale} />
           <RelatedPosts posts={relatedPosts} locale={locale} />
         </article>
 

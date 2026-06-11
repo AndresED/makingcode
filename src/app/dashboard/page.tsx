@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PostList } from '@/components/dashboard/post-list';
+import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
 
 export const metadata: Metadata = {
@@ -11,12 +12,31 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const posts = await listAllPostsForAdmin();
+  const [posts, unreadNewsletterCount] = await Promise.all([
+    listAllPostsForAdmin(),
+    countUnreadNewsletterSubscribers(),
+  ]);
   const published = posts.filter((p) => p.status === 'published').length;
   const drafts = posts.filter((p) => p.status === 'draft').length;
 
   return (
     <section className="space-y-6">
+      {unreadNewsletterCount > 0 ? (
+        <Link
+          href="/dashboard/newsletter"
+          className="surface-card flex items-center justify-between gap-4 border-accent-500/25 bg-accent-500/10 px-5 py-4 transition-colors hover:bg-accent-500/15"
+        >
+          <div>
+            <p className="text-sm font-medium text-ink">New newsletter subscribers</p>
+            <p className="mt-1 text-sm text-ink-muted">
+              {unreadNewsletterCount} new{' '}
+              {unreadNewsletterCount === 1 ? 'subscription' : 'subscriptions'} to review
+            </p>
+          </div>
+          <span className="shrink-0 text-sm text-accent-400">View →</span>
+        </Link>
+      ) : null}
+
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl text-ink">Posts</h1>

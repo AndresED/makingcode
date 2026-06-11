@@ -47,6 +47,18 @@ export const dictionary = {
     'article.copyLink': 'Copy link',
     'article.copied': 'Copied!',
     'article.backToTop': 'Back to top',
+    'article.comments': 'Comments',
+    'article.viewSeries': 'View series',
+    'newsletter.title': 'Get new posts by email',
+    'newsletter.body': 'No spam — just a note when I publish something new on backend, cloud, and architecture.',
+    'newsletter.emailLabel': 'Email address',
+    'newsletter.placeholder': 'you@example.com',
+    'newsletter.submit': 'Subscribe',
+    'newsletter.submitting': 'Subscribing…',
+    'newsletter.success': 'You are subscribed. Thanks!',
+    'newsletter.already': 'You are already subscribed.',
+    'newsletter.error': 'Something went wrong. Try again later.',
+    'newsletter.privacy': 'One email when a post goes live. Unsubscribe anytime.',
     'author.writtenBy': 'Written by',
     'author.about': 'About the author',
     'author.bio':
@@ -78,6 +90,7 @@ export const dictionary = {
     'about.nowTitle': 'What I am working on',
     'about.now':
       'NestJS enterprise patterns, infrastructure docs, and multitenant APIs for logistics workflows in Peru.',
+    'about.hireCta': 'Work with me',
     'about.blogTitle': 'About this blog',
     'about.body1':
       'is the technical blog of {author} — Senior Backend Engineer writing about distributed systems, cloud architecture, and pragmatic software craft.',
@@ -140,6 +153,19 @@ export const dictionary = {
     'article.copyLink': 'Copiar enlace',
     'article.copied': '¡Copiado!',
     'article.backToTop': 'Volver arriba',
+    'article.comments': 'Comentarios',
+    'article.viewSeries': 'Ver serie',
+    'newsletter.title': 'Recibe artículos por email',
+    'newsletter.body':
+      'Sin spam — solo un aviso cuando publique algo nuevo sobre backend, cloud y arquitectura.',
+    'newsletter.emailLabel': 'Correo electrónico',
+    'newsletter.placeholder': 'tu@ejemplo.com',
+    'newsletter.submit': 'Suscribirme',
+    'newsletter.submitting': 'Suscribiendo…',
+    'newsletter.success': '¡Suscripción confirmada. Gracias!',
+    'newsletter.already': 'Ya estás suscrito.',
+    'newsletter.error': 'Algo falló. Intenta de nuevo más tarde.',
+    'newsletter.privacy': 'Un email cuando salga un artículo. Puedes darte de baja cuando quieras.',
     'author.writtenBy': 'Escrito por',
     'author.about': 'Sobre el autor',
     'author.bio':
@@ -171,6 +197,7 @@ export const dictionary = {
     'about.nowTitle': 'En qué estoy trabajando',
     'about.now':
       'Patrones enterprise en NestJS, documentación de infraestructura y APIs multitenant para flujos logísticos en Perú.',
+    'about.hireCta': 'Trabaja conmigo',
     'about.blogTitle': 'Sobre este blog',
     'about.body1':
       'es el blog técnico de {author} — Backend Engineer Senior escribiendo sobre sistemas distribuidos, arquitectura cloud y craft de software.',

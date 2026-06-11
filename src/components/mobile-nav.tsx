@@ -11,9 +11,14 @@ import { t } from '@/lib/i18n/dictionary';
 interface MobileNavProps {
   locale: Locale;
   isAdmin?: boolean;
+  unreadNewsletterCount?: number;
 }
 
-export function MobileNav({ locale, isAdmin = false }: MobileNavProps) {
+export function MobileNav({
+  locale,
+  isAdmin = false,
+  unreadNewsletterCount = 0,
+}: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -64,6 +69,7 @@ export function MobileNav({ locale, isAdmin = false }: MobileNavProps) {
                   locale={locale}
                   variant="mobile"
                   onNavigate={() => setOpen(false)}
+                  unreadNewsletterCount={unreadNewsletterCount}
                 />
               ) : null}
               <div className="border-t border-white/[0.06] pt-4">

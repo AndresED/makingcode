@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { getAdminSession } from '@/lib/auth/session';
+import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { getLocale } from '@/lib/i18n/locale';
 import { siteConfig } from '@/lib/seo/site';
+import { Analytics } from '@/components/analytics';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import './globals.css';
@@ -55,6 +57,7 @@ export default async function RootLayout({
 }>) {
   const [locale, adminSession] = await Promise.all([getLocale(), getAdminSession()]);
   const isAdmin = adminSession !== null;
+  const unreadNewsletterCount = isAdmin ? await countUnreadNewsletterSubscribers() : 0;
 
   return (
     <html
@@ -63,11 +66,16 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh font-sans" suppressHydrationWarning>
-        <SiteHeader locale={locale} isAdmin={isAdmin} />
+        <SiteHeader
+          locale={locale}
+          isAdmin={isAdmin}
+          unreadNewsletterCount={unreadNewsletterCount}
+        />
         <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           {children}
         </main>
         <SiteFooter locale={locale} />
+        <Analytics />
       </body>
     </html>
   );
