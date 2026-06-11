@@ -18,10 +18,12 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: siteConfig.name,
     description: siteConfig.description,
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: siteConfig.name }],
   },
   twitter: {
     card: 'summary_large_image',
     creator: siteConfig.author.twitter,
+    images: ['/opengraph-image'],
   },
   robots: { index: true, follow: true },
 };

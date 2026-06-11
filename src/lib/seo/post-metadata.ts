@@ -4,7 +4,7 @@ import { siteConfig } from './site';
 
 export function buildPostMetadata(post: PostDetail): Metadata {
   const description = post.excerpt.slice(0, 160);
-  const ogImage = post.cover_image_url ?? `${siteConfig.url}/og-default.png`;
+  const ogImage = post.cover_image_url ?? `${siteConfig.url}/opengraph-image`;
 
   return {
     title: post.title,

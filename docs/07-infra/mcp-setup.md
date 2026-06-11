@@ -67,7 +67,7 @@ Si en `~/.cursor/mcp.json` aparece `read_only=true` en la URL de Supabase, quít
 1. Supabase: proyecto + migración + usuario admin
 2. `.env.local` con keys
 3. `npm run dev` — verificar home
-4. Vercel: link + env vars + primer deploy preview
+4. Vercel: link + env vars + primer deploy preview → [vercel-deploy.md](./vercel-deploy.md)
 5. Dominio `www.makingcode.dev` → Vercel
 
 ## Siguiente fase con MCP

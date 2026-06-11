@@ -45,10 +45,10 @@
 
 ## Fase 4 — Deploy + dominio
 
-- [ ] Vercel production + env vars
+- [ ] Vercel production + env vars ([vercel-deploy.md](../07-infra/vercel-deploy.md))
 - [ ] `www.makingcode.dev` DNS
 - [ ] Search Console + sitemap submit
-- [ ] OG default image
+- [x] OG default image (`src/app/opengraph-image.tsx`)
 
 **Entregable:** blog en producción.
 

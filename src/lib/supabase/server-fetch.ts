@@ -7,12 +7,8 @@ const agent = new Agent({
 });
 
 /** Node fetch with explicit dispatcher — fixes intermittent `fetch failed` on Windows dev. */
-export function supabaseServerFetch(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<Response> {
-  return undiciFetch(input, {
+export const supabaseServerFetch: typeof fetch = (input, init) =>
+  undiciFetch(input as never, {
     ...init,
     dispatcher: agent,
-  } as Parameters<typeof undiciFetch>[1]);
-}
+  } as never) as unknown as ReturnType<typeof fetch>;
