@@ -72,9 +72,9 @@ function excerptFromMarkdown(md, max = 300) {
   return `${plain.slice(0, max - 1).trimEnd()}…`;
 }
 
-async function markdownToHtml(markdown) {
-  const { markdownToHtmlSync } = await import('../src/lib/markdown/render.ts');
-  return markdownToHtmlSync(markdown);
+async function renderMarkdown(markdown) {
+  const { markdownToHtml } = await import('../src/lib/markdown/render.ts');
+  return markdownToHtml(markdown);
 }
 
 function listTopicDirs() {
@@ -133,8 +133,8 @@ async function main() {
     const slug_es = es.meta.slug || slugify(title_es);
     const category = en.meta.category || es.meta.category || 'backend';
 
-    const body_html_en = await markdownToHtml(en.body);
-    const body_html_es = await markdownToHtml(es.body);
+    const body_html_en = await renderMarkdown(en.body);
+    const body_html_es = await renderMarkdown(es.body);
 
     const row = {
       title_en,

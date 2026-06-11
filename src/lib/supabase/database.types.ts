@@ -21,6 +21,8 @@ export type Database = {
           body_md_es: string;
           category: string;
           cover_image_url: string | null;
+          series_slug: string | null;
+          series_order: number | null;
           created_at: string;
           excerpt_en: string;
           excerpt_es: string;
@@ -42,6 +44,8 @@ export type Database = {
           body_md_es: string;
           category: string;
           cover_image_url?: string | null;
+          series_slug?: string | null;
+          series_order?: number | null;
           created_at?: string;
           excerpt_en: string;
           excerpt_es: string;
@@ -63,6 +67,8 @@ export type Database = {
           body_md_es?: string;
           category?: string;
           cover_image_url?: string | null;
+          series_slug?: string | null;
+          series_order?: number | null;
           created_at?: string;
           excerpt_en?: string;
           excerpt_es?: string;

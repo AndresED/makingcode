@@ -2,6 +2,8 @@
 
 import { useActionState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { CoverImageUpload } from '@/components/blog/cover-image-upload';
+import { MarkdownField } from '@/components/blog/markdown-field';
 import { POST_CATEGORIES } from '@/lib/posts/categories';
 import type { PostRecord } from '@/lib/posts/types';
 import {
@@ -49,14 +51,30 @@ export function PostEditorForm({ post }: PostEditorFormProps) {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm text-ink-muted">Cover image URL (optional)</label>
+            <label className="mb-1 block text-sm text-ink-muted">Cover image</label>
             <p className="mb-2 text-xs text-ink-muted">
-              Shown on the article page, post cards, and social previews (Open Graph).
+              Upload or paste URL. Shown on cards, article page, and social previews.
             </p>
+            <CoverImageUpload defaultValue={post?.cover_image_url ?? ''} />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-ink-muted">Series slug (optional)</label>
             <input
-              name="cover_image_url"
-              type="url"
-              defaultValue={post?.cover_image_url ?? ''}
+              name="series_slug"
+              defaultValue={post?.series_slug ?? ''}
+              placeholder="nestjs-infrastructure"
+              pattern="[a-z0-9]+(-[a-z0-9]+)*"
+              className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 font-mono text-sm text-ink"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-ink-muted">Series order (optional)</label>
+            <input
+              name="series_order"
+              type="number"
+              min={1}
+              max={99}
+              defaultValue={post?.series_order ?? ''}
               className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink"
             />
           </div>
@@ -91,16 +109,12 @@ export function PostEditorForm({ post }: PostEditorFormProps) {
               className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-ink-muted">Body markdown (EN)</label>
-            <textarea
-              name="body_md_en"
-              defaultValue={post?.body_md_en}
-              required
-              rows={14}
-              className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 font-mono text-sm leading-relaxed text-ink"
-            />
-          </div>
+          <MarkdownField
+            name="body_md_en"
+            label="EN"
+            defaultValue={post?.body_md_en}
+            required
+          />
         </fieldset>
 
         <fieldset className="space-y-4 rounded-xl border border-white/8 p-4">
@@ -122,16 +136,12 @@ export function PostEditorForm({ post }: PostEditorFormProps) {
               className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-ink-muted">Cuerpo markdown (ES)</label>
-            <textarea
-              name="body_md_es"
-              defaultValue={post?.body_md_es}
-              required
-              rows={14}
-              className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 font-mono text-sm leading-relaxed text-ink"
-            />
-          </div>
+          <MarkdownField
+            name="body_md_es"
+            label="ES"
+            defaultValue={post?.body_md_es}
+            required
+          />
         </fieldset>
 
         {state.error ? (

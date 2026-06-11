@@ -5,7 +5,8 @@ import { siteConfig } from './site';
 
 export function buildPostMetadata(post: LocalizedPost, locale: Locale): Metadata {
   const description = post.excerpt.slice(0, 160);
-  const ogImage = post.cover_image_url ?? `${siteConfig.url}/opengraph-image`;
+  const ogImage =
+    post.cover_image_url ?? `${siteConfig.url}/blog/${post.slug}/opengraph-image`;
 
   return {
     title: post.title,

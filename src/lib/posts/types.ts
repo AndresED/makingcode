@@ -17,6 +17,8 @@ export interface PostRecord {
   body_html_es: string;
   category: PostCategory;
   cover_image_url: string | null;
+  series_slug?: string | null;
+  series_order?: number | null;
   reading_time_minutes: number;
   status: PostStatus;
   author_id: string;
@@ -36,6 +38,8 @@ export interface LocalizedPost {
   body_html: string;
   category: PostCategory;
   cover_image_url: string | null;
+  series_slug: string | null;
+  series_order: number | null;
   reading_time_minutes: number;
   published_at: string;
   status: PostStatus;
@@ -62,3 +66,5 @@ export type PostSummary = Pick<
 >;
 
 export type PostDetail = LocalizedPost;
+
+export type SeriesPostSummary = Pick<LocalizedPost, 'id' | 'slug' | 'title'>;

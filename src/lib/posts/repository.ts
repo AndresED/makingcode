@@ -5,7 +5,13 @@ import { getLocale } from '@/lib/i18n/locale';
 import type { PostCategory } from './categories';
 import { POSTS_PER_PAGE } from './constants';
 import { localizePost } from './localize';
-import type { LocalizedPost, PostDetail, PostRecord, PostSummary } from './types';
+import type {
+  LocalizedPost,
+  PostDetail,
+  PostRecord,
+  PostSummary,
+  SeriesPostSummary,
+} from './types';
 
 function formatSupabaseError(error: { message: string; cause?: unknown }): Error {
   const cause =
@@ -19,6 +25,8 @@ function formatSupabaseError(error: { message: string; cause?: unknown }): Error
 
 const recordColumns =
   'id, title_en, title_es, slug_en, slug_es, excerpt_en, excerpt_es, body_md_en, body_md_es, body_html_en, body_html_es, category, cover_image_url, reading_time_minutes, published_at, status, author_id, created_at, updated_at';
+
+const recordColumnsWithSeries = `${recordColumns}, series_slug, series_order`;
 
 export interface PaginatedPosts {
   posts: PostSummary[];
@@ -94,12 +102,23 @@ export async function getPublishedPostBySlug(
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(recordColumnsWithSeries)
     .eq('status', 'published')
     .or(`slug_en.eq.${slug},slug_es.eq.${slug}`)
     .maybeSingle();
 
   if (error) {
+    if (error.message.includes('series_slug') || error.message.includes('series_order')) {
+      const fallback = await supabase
+        .from('posts')
+        .select(recordColumns)
+        .eq('status', 'published')
+        .or(`slug_en.eq.${slug},slug_es.eq.${slug}`)
+        .maybeSingle();
+      if (fallback.error) throw formatSupabaseError(fallback.error);
+      if (!fallback.data) return null;
+      return localizePost(fallback.data as PostRecord, resolvedLocale);
+    }
     throw formatSupabaseError(error);
   }
 
@@ -161,25 +180,93 @@ export async function listAllPostsForAdmin(): Promise<PostRecord[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(recordColumnsWithSeries)
     .order('updated_at', { ascending: false });
 
   if (error) {
+    if (error.message.includes('series_slug') || error.message.includes('series_order')) {
+      const fallback = await supabase
+        .from('posts')
+        .select(recordColumns)
+        .order('updated_at', { ascending: false });
+      if (fallback.error) throw formatSupabaseError(fallback.error);
+      return (fallback.data ?? []) as PostRecord[];
+    }
     throw formatSupabaseError(error);
   }
 
   return (data ?? []) as PostRecord[];
 }
 
+export async function listRelatedPosts(
+  postId: string,
+  category: PostCategory,
+  locale?: Locale,
+  limit = 3,
+): Promise<PostSummary[]> {
+  const resolvedLocale = locale ?? (await getLocale());
+  const supabase = createAnonClient();
+  const { data, error } = await supabase
+    .from('posts')
+    .select(recordColumns)
+    .eq('status', 'published')
+    .eq('category', category)
+    .neq('id', postId)
+    .order('published_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw formatSupabaseError(error);
+  }
+
+  return ((data ?? []) as PostRecord[]).map((row) =>
+    toSummary(localizePost(row, resolvedLocale)),
+  );
+}
+
+export async function listSeriesPosts(
+  seriesSlug: string,
+  locale?: Locale,
+): Promise<SeriesPostSummary[]> {
+  const resolvedLocale = locale ?? (await getLocale());
+  const supabase = createAnonClient();
+  const { data, error } = await supabase
+    .from('posts')
+    .select(recordColumnsWithSeries)
+    .eq('status', 'published')
+    .eq('series_slug', seriesSlug)
+    .order('series_order', { ascending: true, nullsFirst: false })
+    .order('published_at', { ascending: true });
+
+  if (error) {
+    if (error.message.includes('series_slug')) return [];
+    throw formatSupabaseError(error);
+  }
+
+  return ((data ?? []) as PostRecord[]).map((row) => {
+    const post = localizePost(row, resolvedLocale);
+    return { id: post.id, slug: post.slug, title: post.title };
+  });
+}
+
 export async function getPostByIdForAdmin(id: string): Promise<PostRecord | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(recordColumnsWithSeries)
     .eq('id', id)
     .maybeSingle();
 
   if (error) {
+    if (error.message.includes('series_slug') || error.message.includes('series_order')) {
+      const fallback = await supabase
+        .from('posts')
+        .select(recordColumns)
+        .eq('id', id)
+        .maybeSingle();
+      if (fallback.error) throw formatSupabaseError(fallback.error);
+      return (fallback.data as PostRecord | null) ?? null;
+    }
     throw formatSupabaseError(error);
   }
 

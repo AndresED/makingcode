@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { BlogSearch } from '@/components/blog/blog-search';
 import { EmptyPosts } from '@/components/empty-posts';
+import { ListLayout } from '@/components/layout/list-layout';
 import { Pagination } from '@/components/pagination';
 import { PostGrid } from '@/components/post-grid';
 import { categoryLabel } from '@/lib/i18n/category';
+import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { isPostCategory } from '@/lib/posts/categories';
 import { listPublishedPosts } from '@/lib/posts/repository';
@@ -32,29 +35,49 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const locale = await getLocale();
   const query = await searchParams;
   const page = Math.max(1, Number(query.page ?? '1') || 1);
-  const result = await listPublishedPosts({ page, category });
+  const [result, recentResult] = await Promise.all([
+    listPublishedPosts({ page, category }),
+    listPublishedPosts({ page: 1, pageSize: 5 }),
+  ]);
 
   return (
-    <section className="space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-ink">
-          {categoryLabel(locale, category)}
-        </h1>
-        <p className="text-ink-muted">{result.total} article{result.total === 1 ? '' : 's'}</p>
-      </header>
+    <ListLayout
+      locale={locale}
+      recentPosts={recentResult.posts}
+      activeCategory={category}
+    >
+      <section className="space-y-8">
+        <header className="space-y-4">
+          <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
+            {categoryLabel(locale, category)}
+          </h1>
+          <p className="text-ink-muted">
+            {result.total} {result.total === 1 ? 'article' : 'articles'}
+          </p>
+          <div className="lg:hidden">
+            <BlogSearch locale={locale} />
+          </div>
+        </header>
 
-      {result.posts.length === 0 ? (
-        <EmptyPosts locale={locale} />
-      ) : (
-        <>
-          <PostGrid posts={result.posts} locale={locale} />
-          <Pagination
-            basePath={`/categories/${category}`}
-            page={result.page}
-            totalPages={result.totalPages}
-          />
-        </>
-      )}
-    </section>
+        {result.posts.length === 0 ? (
+          <EmptyPosts locale={locale} />
+        ) : (
+          <>
+            <PostGrid posts={result.posts} locale={locale} />
+            <Pagination
+              basePath={`/categories/${category}`}
+              page={result.page}
+              totalPages={result.totalPages}
+              labels={{
+                prev: t(locale, 'pagination.prev'),
+                next: t(locale, 'pagination.next'),
+                page: t(locale, 'pagination.page'),
+                of: t(locale, 'pagination.of'),
+              }}
+            />
+          </>
+        )}
+      </section>
+    </ListLayout>
   );
 }

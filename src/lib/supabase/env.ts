@@ -20,6 +20,19 @@ export function getSupabasePublishableKey(): string {
 }
 
 /** Prefer anon JWT for Auth API — publishable keys can fail password grant in some clients. */
+/** Public Storage bucket for cover images (default matches Supabase project bucket). */
+export function getStorageBucket(): string {
+  return process.env.SUPABASE_STORAGE_BUCKET ?? 'makingcode';
+}
+
+export function getServiceRoleKey(): string {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY');
+  }
+  return key;
+}
+
 export function getSupabaseAuthKey(): string {
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??

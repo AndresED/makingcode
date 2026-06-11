@@ -52,9 +52,9 @@ function excerptFromMarkdown(markdown, max = 300) {
   return `${plain.slice(0, max - 1).trimEnd()}…`;
 }
 
-async function markdownToHtml(markdown) {
-  const { markdownToHtmlSync } = await import('../src/lib/markdown/render.ts');
-  return markdownToHtmlSync(markdown);
+async function renderMarkdown(markdown) {
+  const { markdownToHtml } = await import('../src/lib/markdown/render.ts');
+  return markdownToHtml(markdown);
 }
 
 async function main() {
@@ -113,7 +113,7 @@ async function main() {
 
     const body_md = readFileSync(bodyPath, 'utf8');
     const excerpt = entry.excerpt || excerptFromMarkdown(body_md);
-    const body_html = await markdownToHtml(body_md);
+    const body_html = await renderMarkdown(body_md);
     const reading_time_minutes = estimateReadingTime(body_md);
 
     const row = {

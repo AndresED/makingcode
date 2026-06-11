@@ -1,9 +1,29 @@
 import type { Metadata } from 'next';
+import { DM_Sans, JetBrains_Mono, Newsreader } from 'next/font/google';
+import { getAdminSession } from '@/lib/auth/session';
 import { getLocale } from '@/lib/i18n/locale';
 import { siteConfig } from '@/lib/seo/site';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import './globals.css';
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  variable: '--font-newsreader',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -33,13 +53,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
+  const [locale, adminSession] = await Promise.all([getLocale(), getAdminSession()]);
+  const isAdmin = adminSession !== null;
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className="min-h-screen" suppressHydrationWarning>
-        <SiteHeader locale={locale} />
-        <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">{children}</main>
+    <html
+      lang={locale}
+      className={`${dmSans.variable} ${newsreader.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-dvh font-sans" suppressHydrationWarning>
+        <SiteHeader locale={locale} isAdmin={isAdmin} />
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          {children}
+        </main>
         <SiteFooter locale={locale} />
       </body>
     </html>

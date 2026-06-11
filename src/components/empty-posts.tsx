@@ -6,7 +6,7 @@ interface EmptyPostsProps {
 
 export function EmptyPosts({ locale }: EmptyPostsProps) {
   return (
-    <div className="rounded-xl border border-white/8 bg-dark-800/60 px-6 py-10 text-center">
+    <div className="surface-card px-6 py-12 text-center">
       <p className="text-ink-muted">{t(locale, 'home.empty')}</p>
     </div>
   );
