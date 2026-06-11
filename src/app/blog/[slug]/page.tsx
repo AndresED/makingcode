@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { AuthorCard } from '@/components/blog/author-card';
+import { BackToTop } from '@/components/blog/back-to-top';
 import { CodeCopyEnhancer } from '@/components/blog/code-copy-enhancer';
 import { PostToc } from '@/components/blog/post-toc';
 import { ReadingProgress } from '@/components/blog/reading-progress';
 import { RelatedPosts } from '@/components/blog/related-posts';
 import { SeriesNav } from '@/components/blog/series-nav';
-import { ShareBar } from '@/components/blog/share-bar';
+import { PostCoverFallback } from '@/components/post-cover-fallback';
 import { PostContent } from '@/components/post-content';
 import { PostCoverImage } from '@/components/post-cover-image';
 import { categoryLabel } from '@/lib/i18n/category';
@@ -71,6 +72,7 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <>
       <ReadingProgress />
+      <BackToTop locale={locale} />
       <div
         className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,14rem)] xl:gap-16"
         data-slug-en={post.slug_en}
@@ -118,26 +120,34 @@ export default async function PostPage({ params }: PostPageProps) {
             <p className="text-lg leading-relaxed text-ink-muted">{post.excerpt}</p>
           </header>
 
-          {post.cover_image_url ? (
-            <figure className="mb-10 overflow-hidden rounded-2xl border border-white/[0.06]">
-              <div className="relative aspect-[2/1] w-full">
+          <figure className="mb-10 overflow-hidden rounded-2xl border border-white/[0.06]">
+            <div className="relative aspect-[2/1] w-full bg-dark-900">
+              {post.cover_image_url ? (
                 <PostCoverImage
                   src={post.cover_image_url}
                   alt={post.title}
                   priority
                   sizes="(max-width: 768px) 100vw, 768px"
                 />
-              </div>
-            </figure>
-          ) : null}
+              ) : (
+                <PostCoverFallback
+                  category={post.category}
+                  title={post.title}
+                  locale={locale}
+                  variant="featured"
+                />
+              )}
+            </div>
+          </figure>
 
           <PostContent bodyMd={post.body_md} />
           <CodeCopyEnhancer />
-          <AuthorCard locale={locale} />
-          <ShareBar
-            title={post.title}
+          <AuthorCard
             locale={locale}
-            url={`${siteConfig.url}/blog/${post.slug}`}
+            share={{
+              title: post.title,
+              url: `${siteConfig.url}/blog/${post.slug}`,
+            }}
           />
           <RelatedPosts posts={relatedPosts} locale={locale} />
         </article>

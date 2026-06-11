@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PostCoverFallback } from '@/components/post-cover-fallback';
 import { PostCoverImage } from '@/components/post-cover-image';
 import type { PostSummary } from '@/lib/posts/types';
 import { categoryLabel } from '@/lib/i18n/category';
@@ -35,10 +36,7 @@ export function PostCard({ post, locale }: PostCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-dark-700 via-dark-800 to-accent-500/10"
-            aria-hidden="true"
-          />
+          <PostCoverFallback category={post.category} title={post.title} locale={locale} />
         )}
       </Link>
       <Link href={`/blog/${post.slug}`} className="flex flex-1 flex-col p-5">

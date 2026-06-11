@@ -11,6 +11,7 @@ interface ListLayoutProps {
   activeCategory?: string;
   /** Show mobile-only search + category chips above main content */
   showMobileExplore?: boolean;
+  showRecent?: boolean;
 }
 
 export function ListLayout({
@@ -19,6 +20,7 @@ export function ListLayout({
   recentPosts,
   activeCategory,
   showMobileExplore = false,
+  showRecent = true,
 }: ListLayoutProps) {
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
@@ -27,6 +29,7 @@ export function ListLayout({
           locale={locale}
           recentPosts={recentPosts}
           activeCategory={activeCategory}
+          showRecent={showRecent}
         />
       </div>
       <div className="min-w-0 space-y-6">

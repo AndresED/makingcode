@@ -8,6 +8,7 @@ import { categoryLabel } from '@/lib/i18n/category';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { isPostCategory } from '@/lib/posts/categories';
+import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
 
 export const revalidate = 300;
@@ -45,6 +46,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       recentPosts={recentResult.posts}
       activeCategory={category}
       showMobileExplore
+      showRecent={recentResult.total >= MIN_POSTS_FOR_SIDEBAR_RECENT}
     >
       <section className="space-y-8">
         <header className="space-y-4">

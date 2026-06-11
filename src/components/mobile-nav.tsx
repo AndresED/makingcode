@@ -8,8 +8,6 @@ import { CategoryNav } from '@/components/blog/category-nav';
 import { LocaleToggle } from '@/components/locale-toggle';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
-import { siteConfig } from '@/lib/seo/site';
-
 interface MobileNavProps {
   locale: Locale;
   isAdmin?: boolean;
@@ -58,14 +56,6 @@ export function MobileNav({ locale, isAdmin = false }: MobileNavProps) {
                   {item.label}
                 </Link>
               ))}
-              <a
-                href={siteConfig.author.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-lg px-3 py-2.5 text-base text-ink-body hover:bg-white/[0.04] hover:text-ink"
-              >
-                {t(locale, 'nav.portfolio')} ↗
-              </a>
             </nav>
             <CategoryNav locale={locale} />
             <div className="mt-auto space-y-4">

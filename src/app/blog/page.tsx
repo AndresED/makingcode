@@ -5,6 +5,7 @@ import { Pagination } from '@/components/pagination';
 import { PostGrid } from '@/components/post-grid';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
+import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
 import { searchPublishedPosts } from '@/lib/posts/search';
 
@@ -37,7 +38,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     : await listPublishedPosts({ page });
 
   return (
-    <ListLayout locale={locale} recentPosts={recentResult.posts} showMobileExplore>
+    <ListLayout
+      locale={locale}
+      recentPosts={recentResult.posts}
+      showMobileExplore
+      showRecent={recentResult.total >= MIN_POSTS_FOR_SIDEBAR_RECENT}
+    >
       <section className="space-y-8">
         <header className="space-y-4">
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">

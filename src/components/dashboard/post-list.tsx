@@ -61,7 +61,7 @@ export function PostList({ posts }: PostListProps) {
       {filtered.length === 0 ? (
         <p className="text-ink-muted">No posts match.</p>
       ) : (
-        <ul className="divide-y divide-white/[0.06] overflow-hidden rounded-2xl border border-white/[0.08]">
+        <ul className="surface-card divide-y divide-white/[0.06] overflow-hidden">
           {filtered.map((post) => (
             <li
               key={post.id}

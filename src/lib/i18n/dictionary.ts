@@ -21,7 +21,10 @@ export const dictionary = {
       '5+ years building cloud-native APIs and event-driven microservices for logistics and compliance products.',
     'home.featured': 'Latest article',
     'home.recent': 'Recent articles',
-    'home.empty': 'No posts yet — new articles coming soon.',
+    'home.empty':
+      'New articles are on the way — including a NestJS Enterprise series. Meanwhile, explore my portfolio or learn more about me.',
+    'home.emptyCtaPortfolio': 'View portfolio',
+    'home.emptyCtaAbout': 'About me',
     'home.viewAll': 'View all articles',
     'blog.title': 'All articles',
     'blog.search': 'Search articles…',
@@ -43,6 +46,7 @@ export const dictionary = {
     'article.share': 'Share',
     'article.copyLink': 'Copy link',
     'article.copied': 'Copied!',
+    'article.backToTop': 'Back to top',
     'author.writtenBy': 'Written by',
     'author.about': 'About the author',
     'author.bio':
@@ -110,7 +114,10 @@ export const dictionary = {
       'Más de 5 años construyendo APIs cloud-native y microservicios orientados a eventos para logística y cumplimiento.',
     'home.featured': 'Último artículo',
     'home.recent': 'Artículos recientes',
-    'home.empty': 'Aún no hay publicaciones — pronto habrá artículos nuevos.',
+    'home.empty':
+      'Pronto habrá artículos nuevos — incluyendo una serie NestJS Enterprise. Mientras tanto, explora mi portafolio o conoce más sobre mí.',
+    'home.emptyCtaPortfolio': 'Ver portafolio',
+    'home.emptyCtaAbout': 'Sobre mí',
     'home.viewAll': 'Ver todos los artículos',
     'blog.title': 'Todos los artículos',
     'blog.search': 'Buscar artículos…',
@@ -132,6 +139,7 @@ export const dictionary = {
     'article.share': 'Compartir',
     'article.copyLink': 'Copiar enlace',
     'article.copied': '¡Copiado!',
+    'article.backToTop': 'Volver arriba',
     'author.writtenBy': 'Escrito por',
     'author.about': 'Sobre el autor',
     'author.bio':

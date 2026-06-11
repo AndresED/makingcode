@@ -9,9 +9,15 @@ interface BlogSidebarProps {
   locale: Locale;
   recentPosts?: PostSummary[];
   activeCategory?: string;
+  showRecent?: boolean;
 }
 
-export function BlogSidebar({ locale, recentPosts = [], activeCategory }: BlogSidebarProps) {
+export function BlogSidebar({
+  locale,
+  recentPosts = [],
+  activeCategory,
+  showRecent = true,
+}: BlogSidebarProps) {
   return (
     <aside className="space-y-8 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pb-8">
       <div>
@@ -21,7 +27,7 @@ export function BlogSidebar({ locale, recentPosts = [], activeCategory }: BlogSi
 
       <CategoryNav locale={locale} activeCategory={activeCategory} />
 
-      {recentPosts.length > 0 ? (
+      {showRecent && recentPosts.length > 0 ? (
         <nav aria-label={t(locale, 'sidebar.recent')}>
           <p className="label-caps mb-3">{t(locale, 'sidebar.recent')}</p>
           <ul className="space-y-3">

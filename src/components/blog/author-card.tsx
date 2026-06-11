@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { AuthorAvatar } from '@/components/author-avatar';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
@@ -5,10 +8,29 @@ import { siteConfig } from '@/lib/seo/site';
 
 interface AuthorCardProps {
   locale: Locale;
+  share?: {
+    title: string;
+    url: string;
+  };
 }
 
-export function AuthorCard({ locale }: AuthorCardProps) {
+export function AuthorCard({ locale, share }: AuthorCardProps) {
   const { author } = siteConfig;
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    if (!share) return;
+    try {
+      await navigator.clipboard.writeText(share.url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const encodedUrl = share ? encodeURIComponent(share.url) : '';
+  const encodedTitle = share ? encodeURIComponent(share.title) : '';
 
   return (
     <aside
@@ -65,6 +87,35 @@ export function AuthorCard({ locale }: AuthorCardProps) {
           </ul>
         </div>
       </div>
+
+      {share ? (
+        <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.06] bg-dark-900/30 px-6 py-4">
+          <span className="label-caps mr-1">{t(locale, 'article.share')}</span>
+          <button
+            type="button"
+            onClick={() => void copyLink()}
+            className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-ink-muted transition-colors duration-150 ease-out hover:border-white/[0.14] hover:text-ink"
+          >
+            {copied ? t(locale, 'article.copied') : t(locale, 'article.copyLink')}
+          </button>
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-ink-muted transition-colors duration-150 ease-out hover:border-white/[0.14] hover:text-ink"
+          >
+            LinkedIn
+          </a>
+          <a
+            href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-ink-muted transition-colors duration-150 ease-out hover:border-white/[0.14] hover:text-ink"
+          >
+            X
+          </a>
+        </div>
+      ) : null}
     </aside>
   );
 }

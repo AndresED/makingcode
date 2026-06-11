@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PostCoverFallback } from '@/components/post-cover-fallback';
 import { PostCoverImage } from '@/components/post-cover-image';
 import { categoryLabel } from '@/lib/i18n/category';
 import type { Locale } from '@/lib/i18n/dictionary';
@@ -24,9 +25,11 @@ export function FeaturedPostCard({ post, locale }: FeaturedPostCardProps) {
               priority
             />
           ) : (
-            <div
-              className="absolute inset-0 bg-gradient-to-br from-accent-500/20 via-dark-800 to-meta-500/10"
-              aria-hidden="true"
+            <PostCoverFallback
+              category={post.category}
+              title={post.title}
+              locale={locale}
+              variant="featured"
             />
           )}
           <div

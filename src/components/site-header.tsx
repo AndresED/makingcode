@@ -50,14 +50,6 @@ export function SiteHeader({ locale, isAdmin = false }: SiteHeaderProps) {
               {item.label}
             </NavLink>
           ))}
-          <a
-            href={siteConfig.author.url}
-            className="rounded-lg px-3 py-1.5 text-ink-muted transition-colors duration-150 ease-out hover:text-accent-400"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t(locale, 'nav.portfolio')} ↗
-          </a>
         </nav>
 
         <div className="flex items-center gap-2">

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { AuthorAvatar } from '@/components/author-avatar';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
 import { siteConfig } from '@/lib/seo/site';
@@ -19,7 +18,6 @@ export function HomeHero({ locale }: HomeHeroProps) {
           {t(locale, 'home.title')}
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-ink-body">{t(locale, 'home.tagline')}</p>
-        <p className="max-w-xl text-base text-ink-muted">{t(locale, 'home.subtitle')}</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -37,17 +35,6 @@ export function HomeHero({ locale }: HomeHeroProps) {
         >
           {t(locale, 'home.ctaPortfolio')} ↗
         </a>
-      </div>
-
-      <div className="surface-card flex items-center gap-4 p-4 sm:p-5">
-        <AuthorAvatar size="sm" priority />
-        <div className="min-w-0">
-          <p className="font-medium text-ink">{author.name}</p>
-          <p className="text-sm text-meta-400">
-            {author.role} · {t(locale, 'home.authorLocation')}
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t(locale, 'home.authorIntro')}</p>
-        </div>
       </div>
     </header>
   );
