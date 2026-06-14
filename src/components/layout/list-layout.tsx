@@ -9,6 +9,7 @@ interface ListLayoutProps {
   children: React.ReactNode;
   recentPosts?: PostSummary[];
   activeCategory?: string;
+  activeSeriesSlug?: string;
   /** Show mobile-only search + category chips above main content */
   showMobileExplore?: boolean;
   showRecent?: boolean;
@@ -19,6 +20,7 @@ export function ListLayout({
   children,
   recentPosts,
   activeCategory,
+  activeSeriesSlug,
   showMobileExplore = false,
   showRecent = true,
 }: ListLayoutProps) {
@@ -29,6 +31,7 @@ export function ListLayout({
           locale={locale}
           recentPosts={recentPosts}
           activeCategory={activeCategory}
+          activeSeriesSlug={activeSeriesSlug}
           showRecent={showRecent}
         />
       </div>

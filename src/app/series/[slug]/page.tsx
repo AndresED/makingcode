@@ -57,15 +57,17 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
       locale={locale}
       recentPosts={recentResult.posts}
       showRecent={recentResult.total >= MIN_POSTS_FOR_SIDEBAR_RECENT}
+      activeSeriesSlug={slug}
     >
       <section className="space-y-8">
         <header className="space-y-4">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm text-ink-muted transition-colors duration-150 ease-out hover:text-ink"
-          >
-            ← {t(locale, 'article.back')}
-          </Link>
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+            <Link href="/series" className="transition-colors duration-150 ease-out hover:text-ink">
+              {t(locale, 'article.backToSeries')}
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span className="text-ink">{formatSeriesName(slug, locale, titles)}</span>
+          </nav>
           <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
             {formatSeriesName(slug, locale, titles)}

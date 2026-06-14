@@ -38,6 +38,7 @@ function revalidateBlogPaths(slugs: string[], seriesSlug?: string | null) {
     revalidatePath(`/blog/${slug}`);
   }
   if (seriesSlug) {
+    revalidatePath('/series');
     revalidatePath(`/series/${seriesSlug}`);
   }
 }

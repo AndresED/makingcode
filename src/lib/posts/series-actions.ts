@@ -32,6 +32,7 @@ function revalidateSeriesPaths(seriesSlug: string, postSlugs: string[] = []) {
   revalidatePath('/');
   revalidatePath('/blog');
   revalidatePath('/sitemap.xml');
+  revalidatePath('/series');
   revalidatePath(`/series/${seriesSlug}`);
   for (const slug of postSlugs) {
     revalidatePath(`/blog/${slug}`);

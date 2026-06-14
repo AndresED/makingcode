@@ -172,6 +172,32 @@ export function ArticlePageSkeleton() {
   );
 }
 
+export function SeriesIndexPageSkeleton() {
+  return (
+    <>
+      <LoadingStatus label="Loading series…" />
+      <ListPageSkeleton>
+        <header className="space-y-4">
+          <SkeletonBar className="h-3 w-16" />
+          <SkeletonBar className="h-9 w-56" />
+          <SkeletonBar className="h-5 w-full max-w-xl" />
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: 2 }, (_, index) => (
+            <div key={index} className="surface-card space-y-3 p-5 sm:p-6">
+              <SkeletonBar className="h-3 w-16" />
+              <SkeletonBar className="h-6 w-48" />
+              <SkeletonBar className="h-4 w-24" />
+              <SkeletonBar className="h-4 w-full" />
+              <SkeletonBar className="h-4 w-4/5" />
+            </div>
+          ))}
+        </div>
+      </ListPageSkeleton>
+    </>
+  );
+}
+
 export function SeriesPageSkeleton() {
   return (
     <>

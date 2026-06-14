@@ -121,6 +121,25 @@ export function buildCategoryMetadata(
   return metadata;
 }
 
+export function buildSeriesIndexMetadata(locale: Locale): Metadata {
+  const title = locale === 'es' ? 'Series de artículos' : 'Article series';
+  const description =
+    locale === 'es'
+      ? 'Series de artículos ordenados sobre NestJS, arquitectura backend y patrones en producción.'
+      : 'Ordered article series on NestJS, backend architecture, and production patterns.';
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${siteConfig.url}/series` },
+    openGraph: {
+      title: `${title} | ${siteConfig.name}`,
+      description,
+      url: `${siteConfig.url}/series`,
+    },
+  };
+}
+
 export function buildSeriesMetadata(
   locale: Locale,
   seriesSlug: string,

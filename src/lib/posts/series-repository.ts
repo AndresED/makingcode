@@ -493,9 +493,9 @@ export async function swapSeriesMemberPositions(
   if (u2.error) throw new Error(u2.error.message);
 }
 
-export async function listPublishedSeriesSlugs(): Promise<
+export const listPublishedSeriesSlugs = cache(async (): Promise<
   Array<{ slug: string; updated_at: string; postCount: number }>
-> {
+> => {
   const supabase = await getAnonClient();
   const { data, error } = await supabase
     .from('post_series')
@@ -506,13 +506,69 @@ export async function listPublishedSeriesSlugs(): Promise<
   return ((data ?? []) as Array<{
     slug: string;
     updated_at: string;
-    members: Array<{ post: { status: string } | null }>;
+    members: Array<{ post: { status: string } | { status: string }[] | null }>;
   }>)
     .map((series) => ({
       slug: series.slug,
       updated_at: series.updated_at,
-      postCount: series.members.filter((m) => m.post?.status === 'published').length,
+      postCount: series.members.filter(
+        (member) => unwrapJoin(member.post)?.status === 'published',
+      ).length,
     }))
     .filter((s) => s.postCount > 0)
     .sort((a, b) => b.postCount - a.postCount);
+});
+
+export interface PublishedSeriesCatalogItem {
+  slug: string;
+  title_en: string;
+  title_es: string;
+  description_en: string | null;
+  description_es: string | null;
+  postCount: number;
+  updated_at: string;
 }
+
+export const listPublishedSeriesCatalog = cache(async (): Promise<PublishedSeriesCatalogItem[]> => {
+  const supabase = await getAnonClient();
+  const { data, error } = await supabase
+    .from('post_series')
+    .select(
+      'slug, title_en, title_es, description_en, description_es, updated_at, members:post_series_members(post:posts(status))',
+    );
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (
+      message.includes('post_series') ||
+      message.includes('is_admin') ||
+      message.includes('permission denied')
+    ) {
+      return [];
+    }
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as Array<{
+    slug: string;
+    title_en: string;
+    title_es: string;
+    description_en: string | null;
+    description_es: string | null;
+    updated_at: string;
+    members: Array<{ post: { status: string } | { status: string }[] | null }>;
+  }>)
+    .map((series) => ({
+      slug: series.slug,
+      title_en: series.title_en,
+      title_es: series.title_es,
+      description_en: series.description_en,
+      description_es: series.description_es,
+      updated_at: series.updated_at,
+      postCount: series.members.filter(
+        (member) => unwrapJoin(member.post)?.status === 'published',
+      ).length,
+    }))
+    .filter((series) => series.postCount > 0)
+    .sort((a, b) => b.postCount - a.postCount);
+});

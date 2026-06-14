@@ -29,6 +29,7 @@ export function MobileNav({
   const nav = [
     { href: '/', label: t(locale, 'nav.home') },
     { href: '/blog', label: t(locale, 'nav.blog') },
+    { href: '/series', label: t(locale, 'nav.series') },
     { href: '/about', label: t(locale, 'nav.about') },
   ] as const;
 
