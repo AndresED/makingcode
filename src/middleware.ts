@@ -1,20 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
-const ADMIN_PREFIX = '/dashboard';
-
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith(ADMIN_PREFIX)) {
-    const response = await updateSession(request);
-    // Full auth guard lands in Phase 3 — session refresh only for now
-    return response;
-  }
-
-  return NextResponse.next();
+  return updateSession(request);
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon|opengraph-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+  ],
 };

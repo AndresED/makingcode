@@ -1,11 +1,16 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
+import { getUserSafe, requestHasAuthCookies } from './auth-helpers';
 import { getSupabasePublishableKey, getSupabaseUrl } from './env';
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+
+  if (!requestHasAuthCookies(request.cookies.getAll())) {
+    return supabaseResponse;
+  }
 
   const supabase = createServerClient(
     getSupabaseUrl(),
@@ -28,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  await getUserSafe(supabase);
 
   return supabaseResponse;
 }

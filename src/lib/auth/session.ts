@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import { getUserSafe, requestHasAuthCookies } from '@/lib/supabase/auth-helpers';
+import { cookies } from 'next/headers';
 import type { User } from '@supabase/supabase-js';
 
 export interface AdminSession {
@@ -7,11 +9,13 @@ export interface AdminSession {
 }
 
 export async function getSessionUser(): Promise<User | null> {
+  const cookieStore = await cookies();
+  if (!requestHasAuthCookies(cookieStore.getAll())) {
+    return null;
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  return getUserSafe(supabase);
 }
 
 export async function getAdminSession(): Promise<AdminSession | null> {
