@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { PostRecord, PostSeriesMembership } from './types';
 
 export type { PostSeriesMembership };
@@ -71,7 +72,7 @@ export async function listPostSeriesRecords(): Promise<PostSeriesRecord[]> {
   return (data ?? []) as PostSeriesRecord[];
 }
 
-export async function getPostSeriesBySlug(slug: string): Promise<PostSeriesRecord | null> {
+export const getPostSeriesBySlug = cache(async (slug: string): Promise<PostSeriesRecord | null> => {
   const supabase = await getAnonClient();
   const { data, error } = await supabase
     .from('post_series')
@@ -81,7 +82,7 @@ export async function getPostSeriesBySlug(slug: string): Promise<PostSeriesRecor
 
   if (error) throw new Error(error.message);
   return (data as PostSeriesRecord | null) ?? null;
-}
+});
 
 export async function getPostSeriesById(id: string): Promise<PostSeriesRecord | null> {
   const supabase = await getAdminClient();
@@ -166,16 +167,26 @@ export async function listSeriesMembershipsForPostIds(
     .in('post_id', postIds);
 
   if (error) {
-    if (error.message.includes('post_series')) return new Map();
+    const message = error.message.toLowerCase();
+    if (
+      message.includes('post_series') ||
+      message.includes('is_admin') ||
+      message.includes('permission denied')
+    ) {
+      return new Map();
+    }
     throw new Error(error.message);
   }
 
   const map = new Map<string, PostSeriesMembership>();
   for (const row of data ?? []) {
-    const series = row.series as
-      | { id: string; slug: string; title_en: string; title_es: string }
-      | null
-      | undefined;
+    const series = unwrapJoin(
+      row.series as
+        | { id: string; slug: string; title_en: string; title_es: string }
+        | Array<{ id: string; slug: string; title_en: string; title_es: string }>
+        | null
+        | undefined,
+    );
     if (!series) continue;
 
     if (options?.publishedOnly) {
@@ -208,6 +219,64 @@ export async function getSeriesSlugForPostId(postId: string): Promise<string | n
   const memberships = await listSeriesMembershipsForPostIds([postId]);
   return memberships.get(postId)?.series_slug ?? null;
 }
+
+function membershipFromSeries(series: PostSeriesRecord, position: number): PostSeriesMembership {
+  return {
+    series_id: series.id,
+    series_slug: series.slug,
+    title_en: series.title_en,
+    title_es: series.title_es,
+    position,
+  };
+}
+
+export const getPublishedSeriesWithPosts = cache(async (
+  seriesSlug: string,
+): Promise<{ series: PostSeriesRecord; posts: PostRecord[] } | null> => {
+  const supabase = await getAnonClient();
+  const { data, error } = await supabase
+    .from('post_series')
+    .select(
+      '*, members:post_series_members(position, post:posts(*))',
+    )
+    .eq('slug', seriesSlug)
+    .maybeSingle();
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (
+      message.includes('post_series') ||
+      message.includes('is_admin') ||
+      message.includes('permission denied')
+    ) {
+      return null;
+    }
+    throw new Error(error.message);
+  }
+
+  if (!data) return null;
+
+  const row = data as PostSeriesRecord & {
+    members: Array<{ position: number; post: PostRecord | PostRecord[] | null }>;
+  };
+
+  const posts: PostRecord[] = [];
+  for (const member of row.members ?? []) {
+    const post = unwrapJoin(member.post);
+    if (!post || post.status !== 'published') continue;
+    posts.push({
+      ...post,
+      series: membershipFromSeries(row, member.position),
+    });
+  }
+
+  posts.sort((a, b) => (a.series?.position ?? 0) - (b.series?.position ?? 0));
+
+  const { members: _drop, ...series } = row;
+  void _drop;
+
+  return { series: series as PostSeriesRecord, posts };
+});
 
 export async function enrichPostsWithSeries(
   posts: PostRecord[],

@@ -1,6 +1,7 @@
+import { cache } from 'react';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { getUserSafe, requestHasAuthCookies } from '@/lib/supabase/auth-helpers';
-import { cookies } from 'next/headers';
 import type { User } from '@supabase/supabase-js';
 
 export interface AdminSession {
@@ -8,7 +9,7 @@ export interface AdminSession {
   role: 'admin';
 }
 
-export async function getSessionUser(): Promise<User | null> {
+async function getSessionUserUncached(): Promise<User | null> {
   const cookieStore = await cookies();
   if (!requestHasAuthCookies(cookieStore.getAll())) {
     return null;
@@ -18,7 +19,9 @@ export async function getSessionUser(): Promise<User | null> {
   return getUserSafe(supabase);
 }
 
-export async function getAdminSession(): Promise<AdminSession | null> {
+export const getSessionUser = cache(getSessionUserUncached);
+
+async function getAdminSessionUncached(): Promise<AdminSession | null> {
   const user = await getSessionUser();
   if (!user) return null;
 
@@ -31,4 +34,12 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
   if (profile?.role !== 'admin') return null;
   return { user, role: 'admin' };
+}
+
+export const getAdminSession = cache(getAdminSessionUncached);
+
+/** Fast path for header: skip Supabase round-trips when no session cookies. */
+export async function hasAuthSessionCookies(): Promise<boolean> {
+  const cookieStore = await cookies();
+  return requestHasAuthCookies(cookieStore.getAll());
 }

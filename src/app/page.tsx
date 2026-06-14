@@ -21,8 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const locale = await getLocale();
-  const { posts, total } = await listPublishedPosts({ page: 1, pageSize: HOME_POSTS_LIMIT });
-  const seriesList = await listPublishedSeries();
+
+  const [{ posts, total }, seriesList] = await Promise.all([
+    listPublishedPosts({ page: 1, pageSize: HOME_POSTS_LIMIT }),
+    listPublishedSeries(),
+  ]);
+
   const primarySeries = seriesList[0] ?? null;
   const allSeriesPosts = primarySeries
     ? await listPublishedPostsInSeries(primarySeries.slug, locale)

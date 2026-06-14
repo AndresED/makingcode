@@ -24,7 +24,7 @@ export function localizePost(post: PostRecord, locale: Locale): LocalizedPost {
     cover_image_url: post.cover_image_url,
     series_slug: post.series?.series_slug ?? null,
     series_order: post.series?.position ?? null,
-    reading_time_minutes: estimateReadingTimeMinutes(body_md),
+    reading_time_minutes: post.reading_time_minutes ?? estimateReadingTimeMinutes(body_md),
     published_at: post.published_at ?? '',
     status: post.status,
     author_id: post.author_id,

@@ -9,13 +9,11 @@ import { t, type Locale } from '@/lib/i18n/dictionary';
 interface SiteHeaderProps {
   locale: Locale;
   isAdmin?: boolean;
-  unreadNewsletterCount?: number;
 }
 
 export function SiteHeader({
   locale,
   isAdmin = false,
-  unreadNewsletterCount = 0,
 }: SiteHeaderProps) {
   const nav = [
     { href: '/', label: t(locale, 'nav.home') },
@@ -53,17 +51,13 @@ export function SiteHeader({
         <div className="flex items-center gap-2">
           {isAdmin ? (
             <div className="hidden lg:block">
-              <AdminNav locale={locale} unreadNewsletterCount={unreadNewsletterCount} />
+              <AdminNav locale={locale} />
             </div>
           ) : null}
           <div className="hidden lg:block">
             <LocaleToggle locale={locale} />
           </div>
-          <MobileNav
-            locale={locale}
-            isAdmin={isAdmin}
-            unreadNewsletterCount={unreadNewsletterCount}
-          />
+          <MobileNav locale={locale} isAdmin={isAdmin} />
         </div>
       </div>
     </header>

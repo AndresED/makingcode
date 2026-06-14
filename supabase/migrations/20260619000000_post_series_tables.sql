@@ -26,10 +26,26 @@ create policy "post_series_select_public"
   on public.post_series for select
   using (true);
 
-create policy "post_series_admin_all"
-  on public.post_series for all
+create policy "post_series_admin_select"
+  on public.post_series for select
+  to authenticated
+  using (public.is_admin());
+
+create policy "post_series_admin_insert"
+  on public.post_series for insert
+  to authenticated
+  with check (public.is_admin());
+
+create policy "post_series_admin_update"
+  on public.post_series for update
+  to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+create policy "post_series_admin_delete"
+  on public.post_series for delete
+  to authenticated
+  using (public.is_admin());
 
 -- ---------------------------------------------------------------------------
 -- Series membership (one series per post)
@@ -61,10 +77,26 @@ create policy "post_series_members_select_published"
     )
   );
 
-create policy "post_series_members_admin_all"
-  on public.post_series_members for all
+create policy "post_series_members_admin_select"
+  on public.post_series_members for select
+  to authenticated
+  using (public.is_admin());
+
+create policy "post_series_members_admin_insert"
+  on public.post_series_members for insert
+  to authenticated
+  with check (public.is_admin());
+
+create policy "post_series_members_admin_update"
+  on public.post_series_members for update
+  to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+create policy "post_series_members_admin_delete"
+  on public.post_series_members for delete
+  to authenticated
+  using (public.is_admin());
 
 -- ---------------------------------------------------------------------------
 -- Migrate legacy columns on posts
@@ -102,3 +134,5 @@ drop index if exists public.posts_series_idx;
 alter table public.posts
   drop column if exists series_slug,
   drop column if exists series_order;
+
+grant execute on function public.is_admin() to authenticated;

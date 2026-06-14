@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation';
-import { DashboardNav } from '@/components/dashboard/dashboard-nav';
+import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 import { getAdminSession } from '@/lib/auth/session';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
-import { signOutAction } from '@/lib/posts/actions';
 
 export default async function DashboardLayout({
   children,
@@ -17,16 +16,9 @@ export default async function DashboardLayout({
   const unreadNewsletterCount = await countUnreadNewsletterSubscribers();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 pb-4">
-        <DashboardNav unreadNewsletterCount={unreadNewsletterCount} />
-        <form action={signOutAction}>
-          <button type="submit" className="text-sm text-ink-muted hover:text-ink">
-            Sign out
-          </button>
-        </form>
-      </div>
-      {children}
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+      <DashboardSidebar unreadNewsletterCount={unreadNewsletterCount} />
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

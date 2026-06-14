@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
     return buildBlogMetadata(locale, { query });
   }
 
-  const { totalPages } = await listPublishedPosts({ page });
+  const { totalPages } = await listPublishedPosts({ page, locale });
   return buildBlogMetadata(locale, { page, totalPages });
 }
 
@@ -37,15 +37,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const isSearch = query.length >= 2;
   const page = Math.max(1, Number(params.page ?? '1') || 1);
 
-  const recentResult = await listPublishedPosts({ page: 1, pageSize: 5 });
-  const result = isSearch
-    ? {
-        posts: await searchPublishedPosts(query, locale, 50),
-        page: 1,
-        totalPages: 1,
-        total: 0,
-      }
-    : await listPublishedPosts({ page });
+  const [recentResult, result] = await Promise.all([
+    listPublishedPosts({ page: 1, pageSize: 5, locale }),
+    isSearch
+      ? searchPublishedPosts(query, locale, 50).then((posts) => ({
+          posts,
+          page: 1,
+          totalPages: 1,
+          total: 0,
+        }))
+      : listPublishedPosts({ page, locale }),
+  ]);
 
   return (
     <ListLayout

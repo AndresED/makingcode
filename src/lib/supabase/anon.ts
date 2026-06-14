@@ -8,11 +8,16 @@ const serverClientOptions = {
   global: { fetch: supabaseServerFetch },
 } as const;
 
+let anonClient: ReturnType<typeof createClient<Database>> | null = null;
+
 /** Read-only client for public queries (build + RSC without cookies). */
 export function createAnonClient() {
-  return createClient<Database>(
-    getSupabaseUrl(),
-    getSupabasePublishableKey(),
-    serverClientOptions,
-  );
+  if (!anonClient) {
+    anonClient = createClient<Database>(
+      getSupabaseUrl(),
+      getSupabasePublishableKey(),
+      serverClientOptions,
+    );
+  }
+  return anonClient;
 }

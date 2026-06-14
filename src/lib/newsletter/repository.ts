@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 
 export interface NewsletterSubscriber {
@@ -9,7 +10,7 @@ export interface NewsletterSubscriber {
   admin_seen_at: string | null;
 }
 
-export async function countUnreadNewsletterSubscribers(): Promise<number> {
+export const countUnreadNewsletterSubscribers = cache(async (): Promise<number> => {
   const supabase = await createClient();
   const { count, error } = await supabase
     .from('newsletter_subscribers')
@@ -23,7 +24,7 @@ export async function countUnreadNewsletterSubscribers(): Promise<number> {
   }
 
   return count ?? 0;
-}
+});
 
 export async function listNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
   const supabase = await createClient();

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { createClient } from '@/lib/supabase/server';
 import type { Locale } from '@/lib/i18n/dictionary';
@@ -7,7 +8,7 @@ import { POSTS_PER_PAGE } from './constants';
 import { localizePost } from './localize';
 import {
   enrichPostsWithSeries,
-  listMembersForSeriesSlug,
+  getPublishedSeriesWithPosts,
   listPublishedSeriesSlugs,
 } from './series-repository';
 import type {
@@ -30,6 +31,9 @@ function formatSupabaseError(error: { message: string; cause?: unknown }): Error
 
 const recordColumns =
   'id, title_en, title_es, slug_en, slug_es, excerpt_en, excerpt_es, body_md_en, body_md_es, body_html_en, body_html_es, category, cover_image_url, reading_time_minutes, published_at, status, author_id, created_at, updated_at';
+
+const summaryColumns =
+  'id, title_en, title_es, slug_en, slug_es, excerpt_en, excerpt_es, category, cover_image_url, reading_time_minutes, published_at, status';
 
 export interface PaginatedPosts {
   posts: PostSummary[];
@@ -54,12 +58,12 @@ function toSummary(post: LocalizedPost): PostSummary {
   };
 }
 
-export async function listPublishedPosts(options?: {
+export const listPublishedPosts = cache(async (options?: {
   page?: number;
   pageSize?: number;
   category?: PostCategory;
   locale?: Locale;
-}): Promise<PaginatedPosts> {
+}): Promise<PaginatedPosts> => {
   const locale = options?.locale ?? (await getLocale());
   const page = options?.page ?? 1;
   const pageSize = options?.pageSize ?? POSTS_PER_PAGE;
@@ -69,7 +73,7 @@ export async function listPublishedPosts(options?: {
   const supabase = createAnonClient();
   let query = supabase
     .from('posts')
-    .select(recordColumns, { count: 'exact' })
+    .select(summaryColumns, { count: 'exact' })
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .range(from, to);
@@ -84,11 +88,10 @@ export async function listPublishedPosts(options?: {
     throw formatSupabaseError(error);
   }
 
-  const records = await enrichPostsWithSeries((data ?? []) as PostRecord[], {
-    publishedOnly: true,
-  });
   const total = count ?? 0;
-  const posts = records.map((row) => toSummary(localizePost(row, locale)));
+  const posts = ((data ?? []) as PostRecord[]).map((row) =>
+    toSummary(localizePost(row, locale)),
+  );
 
   return {
     posts,
@@ -97,7 +100,7 @@ export async function listPublishedPosts(options?: {
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
   };
-}
+});
 
 export async function getPublishedPostBySlug(
   slug: string,
@@ -109,7 +112,7 @@ export async function getPublishedPostBySlug(
   return localizePost(record, resolvedLocale);
 }
 
-export async function getPublishedPostRecordBySlug(slug: string): Promise<PostRecord | null> {
+export const getPublishedPostRecordBySlug = cache(async (slug: string): Promise<PostRecord | null> => {
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('posts')
@@ -126,7 +129,7 @@ export async function getPublishedPostRecordBySlug(slug: string): Promise<PostRe
 
   const [enriched] = await enrichPostsWithSeries([data as PostRecord], { publishedOnly: true });
   return enriched ?? null;
-}
+});
 
 export async function listPublishedSlugs(): Promise<string[]> {
   const supabase = createAnonClient();
@@ -185,7 +188,7 @@ export async function listRelatedPosts(
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(summaryColumns)
     .eq('status', 'published')
     .eq('category', category)
     .neq('id', postId)
@@ -196,11 +199,9 @@ export async function listRelatedPosts(
     throw formatSupabaseError(error);
   }
 
-  const records = await enrichPostsWithSeries((data ?? []) as PostRecord[], {
-    publishedOnly: true,
-  });
-
-  return records.map((row) => toSummary(localizePost(row, resolvedLocale)));
+  return ((data ?? []) as PostRecord[]).map((row) =>
+    toSummary(localizePost(row, resolvedLocale)),
+  );
 }
 
 export interface PublishedSeriesSummary {
@@ -208,22 +209,19 @@ export interface PublishedSeriesSummary {
   postCount: number;
 }
 
-export async function listPublishedSeries(): Promise<PublishedSeriesSummary[]> {
+export const listPublishedSeries = cache(async (): Promise<PublishedSeriesSummary[]> => {
   const rows = await listPublishedSeriesSlugs();
   return rows.map(({ slug, postCount }) => ({ slug, postCount }));
-}
+});
 
 export async function listPublishedPostsInSeries(
   seriesSlug: string,
   locale?: Locale,
 ): Promise<PostSummary[]> {
   const resolvedLocale = locale ?? (await getLocale());
-  const members = await listMembersForSeriesSlug(seriesSlug, { publishedOnly: true });
-  const enriched = await enrichPostsWithSeries(
-    members.map((member) => member.post),
-    { publishedOnly: true },
-  );
-  return enriched.map((row) => toSummary(localizePost(row, resolvedLocale)));
+  const bundle = await getPublishedSeriesWithPosts(seriesSlug);
+  if (!bundle) return [];
+  return bundle.posts.map((row) => toSummary(localizePost(row, resolvedLocale)));
 }
 
 export async function listSeriesPosts(
@@ -231,8 +229,12 @@ export async function listSeriesPosts(
   locale?: Locale,
 ): Promise<SeriesPostSummary[]> {
   const resolvedLocale = locale ?? (await getLocale());
-  const summaries = await listPublishedPostsInSeries(seriesSlug, resolvedLocale);
-  return summaries.map((post) => ({ id: post.id, slug: post.slug, title: post.title }));
+  const bundle = await getPublishedSeriesWithPosts(seriesSlug);
+  if (!bundle) return [];
+  return bundle.posts.map((row) => {
+    const post = localizePost(row, resolvedLocale);
+    return { id: post.id, slug: post.slug, title: post.title };
+  });
 }
 
 export async function getPostByIdForAdmin(id: string): Promise<PostRecord | null> {
