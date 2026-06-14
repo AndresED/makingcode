@@ -6,7 +6,7 @@ import { categoryLabel } from '@/lib/i18n/category';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
-import { formatSeriesName } from '@/lib/posts/format-series-name';
+import { formatSeriesName, seriesArticleCountLabel } from '@/lib/posts/format-series-name';
 import { listPublishedPosts, listPublishedPostsInSeries } from '@/lib/posts/repository';
 import { buildSeriesMetadata } from '@/lib/seo/page-metadata';
 
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: SeriesPageProps): Promise<Met
   const locale = await getLocale();
   const ordered = await listPublishedPostsInSeries(slug, locale);
   if (ordered.length === 0) {
-    return { title: formatSeriesName(slug) };
+    return { title: formatSeriesName(slug, locale) };
   }
   return buildSeriesMetadata(locale, slug, ordered.length);
 }
@@ -60,11 +60,9 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           </Link>
           <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
-            {formatSeriesName(slug)}
+            {formatSeriesName(slug, locale)}
           </h1>
-          <p className="text-ink-muted">
-            {ordered.length} {ordered.length === 1 ? 'article' : 'articles'}
-          </p>
+          <p className="text-ink-muted">{seriesArticleCountLabel(locale, ordered.length)}</p>
         </header>
 
         <ol className="space-y-4">

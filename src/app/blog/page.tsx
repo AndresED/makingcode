@@ -61,8 +61,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </h1>
           {isSearch ? (
             <p className="text-ink-muted">
-              &ldquo;{query}&rdquo; — {result.posts.length}{' '}
-              {result.posts.length === 1 ? 'result' : 'results'}
+              &ldquo;{query}&rdquo; —{' '}
+              {result.posts.length === 1
+                ? t(locale, 'blog.resultCount').replace('{count}', String(result.posts.length))
+                : t(locale, 'blog.resultCountPlural').replace('{count}', String(result.posts.length))}
             </p>
           ) : (
             <p className="text-ink-muted">{t(locale, 'home.subtitle')}</p>

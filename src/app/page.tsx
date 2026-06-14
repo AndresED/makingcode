@@ -2,13 +2,14 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { FeaturedPostCard } from '@/components/blog/featured-post-card';
 import { HomeHero } from '@/components/blog/home-hero';
+import { HomeSeriesBlock } from '@/components/blog/home-series-block';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { PostGrid } from '@/components/post-grid';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { HOME_POSTS_LIMIT, MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
-import { listPublishedPosts } from '@/lib/posts/repository';
+import { listPublishedPosts, listPublishedPostsInSeries, listPublishedSeries } from '@/lib/posts/repository';
 import { buildHomeMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 3600;
@@ -21,6 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const locale = await getLocale();
   const { posts, total } = await listPublishedPosts({ page: 1, pageSize: HOME_POSTS_LIMIT });
+  const seriesList = await listPublishedSeries();
+  const primarySeries = seriesList[0] ?? null;
+  const seriesPosts = primarySeries
+    ? await listPublishedPostsInSeries(primarySeries.slug, locale)
+    : [];
   const [featured, ...rest] = posts;
   const showViewAll = total > HOME_POSTS_LIMIT;
   const showRecent = total >= MIN_POSTS_FOR_SIDEBAR_RECENT;
@@ -40,6 +46,10 @@ export default async function HomePage() {
         ) : (
           <>
             {featured ? <FeaturedPostCard post={featured} locale={locale} /> : null}
+
+            {primarySeries ? (
+              <HomeSeriesBlock locale={locale} seriesSlug={primarySeries.slug} posts={seriesPosts} />
+            ) : null}
 
             {rest.length > 0 ? (
               <div className="space-y-6">

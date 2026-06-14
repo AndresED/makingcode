@@ -77,6 +77,11 @@ async function renderMarkdown(markdown) {
   return markdownToHtml(markdown);
 }
 
+function staggeredPublishedAt(index, baseIso = '2026-03-01T12:00:00.000Z') {
+  const base = new Date(baseIso).getTime();
+  const daysBetween = 14;
+  return new Date(base + index * daysBetween * 24 * 60 * 60 * 1000).toISOString();
+}
 function listTopicDirs() {
   return readdirSync(publicacionesDir).filter((entry) => {
     const full = join(publicacionesDir, entry);
@@ -117,6 +122,7 @@ async function main() {
   console.log(`Publicando ${topics.length} artículos bilingües${dryRun ? ' [DRY RUN]' : ''}…\n`);
 
   for (const topic of topics) {
+    const topicIndex = topics.indexOf(topic);
     const enPath = join(publicacionesDir, topic, 'en.md');
     const esPath = join(publicacionesDir, topic, 'es.md');
     if (!existsSync(enPath) || !existsSync(esPath)) {
@@ -132,6 +138,12 @@ async function main() {
     const slug_en = en.meta.slug || slugify(title_en);
     const slug_es = es.meta.slug || slugify(title_es);
     const category = en.meta.category || es.meta.category || 'backend';
+    const series_slug = en.meta.series_slug || es.meta.series_slug || null;
+    const series_order = Number(en.meta.series_order || es.meta.series_order || 0) || null;
+    const published_at =
+      en.meta.published_at ||
+      es.meta.published_at ||
+      (series_order != null ? staggeredPublishedAt(series_order - 1) : staggeredPublishedAt(topicIndex));
 
     const body_html_en = await renderMarkdown(en.body);
     const body_html_es = await renderMarkdown(es.body);
@@ -149,9 +161,11 @@ async function main() {
       body_html_es,
       category,
       cover_image_url: en.meta.cover_image_url || null,
+      series_slug,
+      series_order,
       reading_time_minutes: Math.max(estimateReadingTime(en.body), estimateReadingTime(es.body)),
       status: 'published',
-      published_at: new Date().toISOString(),
+      published_at,
       author_id: author.id,
     };
 

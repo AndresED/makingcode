@@ -64,6 +64,12 @@ function slugifyEs(title) {
     .slice(0, 120);
 }
 
+function staggeredPublishedAt(order, baseIso = '2026-03-01T12:00:00.000Z') {
+  const base = new Date(baseIso).getTime();
+  const daysBetween = 14;
+  return new Date(base + (order - 1) * daysBetween * 24 * 60 * 60 * 1000).toISOString();
+}
+
 async function renderMarkdown(markdown) {
   const { markdownToHtml } = await import('../src/lib/markdown/render.ts');
   return markdownToHtml(markdown);
@@ -195,7 +201,9 @@ async function main() {
       series_order,
       reading_time_minutes,
       status: 'published',
-      published_at: new Date().toISOString(),
+      published_at:
+        entry.published_at ??
+        (series_order != null ? staggeredPublishedAt(series_order) : new Date().toISOString()),
       author_id: author.id,
     };
 

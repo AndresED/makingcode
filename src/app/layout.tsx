@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getAdminSession } from '@/lib/auth/session';
 import { hubotSans, jetbrainsMono, sourceSans } from '@/lib/fonts';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
-import { getLocale } from '@/lib/i18n/locale';
+import { getDocumentLocale } from '@/lib/i18n/document-locale';
 import { siteConfig } from '@/lib/seo/site';
 import { Analytics } from '@/components/analytics';
 import { SiteJsonLd } from '@/components/seo/site-json-ld';
@@ -38,7 +38,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [locale, adminSession] = await Promise.all([getLocale(), getAdminSession()]);
+  const [locale, adminSession] = await Promise.all([getDocumentLocale(), getAdminSession()]);
   const isAdmin = adminSession !== null;
   const unreadNewsletterCount = isAdmin ? await countUnreadNewsletterSubscribers() : 0;
 

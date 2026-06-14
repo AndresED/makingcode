@@ -243,6 +243,26 @@ export async function listRelatedPosts(
   );
 }
 
+export interface PublishedSeriesSummary {
+  slug: string;
+  postCount: number;
+}
+
+export async function listPublishedSeries(): Promise<PublishedSeriesSummary[]> {
+  const records = await listPublishedPostRecords();
+  const counts = new Map<string, number>();
+
+  for (const post of records) {
+    const slug = post.series_slug?.trim();
+    if (!slug) continue;
+    counts.set(slug, (counts.get(slug) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([slug, postCount]) => ({ slug, postCount }))
+    .sort((a, b) => b.postCount - a.postCount);
+}
+
 export async function listPublishedPostsInSeries(
   seriesSlug: string,
   locale?: Locale,
