@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PostList } from '@/components/dashboard/post-list';
 import { getAnalyticsDashboardReport } from '@/lib/analytics/first-party-stats';
+import { parseAnalyticsQuery } from '@/lib/analytics/date-range';
 import { getPostViewCountsByPostId } from '@/lib/analytics/post-views';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
@@ -17,7 +18,7 @@ export default async function DashboardPage() {
   const posts = await listAllPostsForAdmin();
   const [unreadNewsletterCount, analytics, viewCounts] = await Promise.all([
     countUnreadNewsletterSubscribers(),
-    getAnalyticsDashboardReport(),
+    getAnalyticsDashboardReport(parseAnalyticsQuery({})),
     getPostViewCountsByPostId(posts, 30),
   ]);
   const published = posts.filter((p) => p.status === 'published').length;

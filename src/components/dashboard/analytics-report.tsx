@@ -1,7 +1,12 @@
-import type { AnalyticsDashboardReport } from '@/lib/analytics/types';
+import { Suspense } from 'react';
+import type { AnalyticsDashboardReport, PaginatedTable } from '@/lib/analytics/types';
+import { AnalyticsDateFilter } from '@/components/dashboard/analytics-date-filter';
+import { AnalyticsTablePagination } from '@/components/dashboard/analytics-table-pagination';
+import type { AnalyticsBreakdownRow, AnalyticsPageRow } from '@/lib/analytics/types';
 
 interface AnalyticsReportProps {
   report: AnalyticsDashboardReport;
+  paginationParams: URLSearchParams;
 }
 
 function formatNumber(value: number): string {
@@ -42,16 +47,28 @@ function BreakdownTable({
   rows,
   valueLabel,
   emptyLabel,
+  pagination,
 }: {
   title: string;
   rows: Array<{ label: string; pageviews: number; visitors: number; path?: string }>;
   valueLabel: string;
   emptyLabel: string;
+  pagination?: {
+    pageKey: string;
+    table: PaginatedTable<AnalyticsPageRow | AnalyticsBreakdownRow>;
+    searchParams: URLSearchParams;
+  };
 }) {
   return (
     <section className="surface-card overflow-hidden">
       <div className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="font-display text-lg text-ink">{title}</h2>
+        {pagination && pagination.table.totalItems > 0 ? (
+          <p className="mt-1 text-sm text-ink-muted">
+            {pagination.table.totalItems} results · page {pagination.table.page} of{' '}
+            {pagination.table.totalPages}
+          </p>
+        ) : null}
       </div>
       {rows.length === 0 ? (
         <p className="px-5 py-6 text-sm text-ink-muted">{emptyLabel}</p>
@@ -67,7 +84,7 @@ function BreakdownTable({
             </thead>
             <tbody className="divide-y divide-white/[0.06]">
               {rows.map((row) => (
-                <tr key={`${title}-${row.label}`} className="hover:bg-white/[0.02]">
+                <tr key={`${title}-${row.path ?? row.label}`} className="hover:bg-white/[0.02]">
                   <td className="max-w-xs px-5 py-3 text-ink">
                     {row.path ? (
                       <div className="space-y-0.5">
@@ -88,6 +105,15 @@ function BreakdownTable({
           </table>
         </div>
       )}
+      {pagination ? (
+        <AnalyticsTablePagination
+          basePath="/dashboard/analytics"
+          searchParams={pagination.searchParams}
+          pageKey={pagination.pageKey}
+          page={pagination.table.page}
+          totalPages={pagination.table.totalPages}
+        />
+      ) : null}
     </section>
   );
 }
@@ -100,15 +126,20 @@ function SetupPanel({ message }: { message: string }) {
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">{message}</p>
       </div>
       <ul className="space-y-2 text-sm text-ink-body">
-        <li>Run the Supabase migration: <code>supabase/migrations/20260622000000_page_view_events.sql</code></li>
-        <li>Public pages send lightweight beacons to <code>/api/analytics/view</code></li>
+        <li>
+          Run the Supabase migration:{' '}
+          <code>supabase/migrations/20260622000000_page_view_events.sql</code>
+        </li>
+        <li>
+          Public pages send lightweight beacons to <code>/api/analytics/view</code>
+        </li>
         <li>No third-party service or paid trial required</li>
       </ul>
     </div>
   );
 }
 
-export function AnalyticsReport({ report }: AnalyticsReportProps) {
+export function AnalyticsReport({ report, paginationParams }: AnalyticsReportProps) {
   if (!report.configured) {
     return (
       <SetupPanel message="First-party analytics is not ready yet. Apply the page_view_events migration in Supabase." />
@@ -127,10 +158,11 @@ export function AnalyticsReport({ report }: AnalyticsReportProps) {
     );
   }
 
+  const rangeLabel = report.range.label;
   const hasData =
     (report.period30d?.pageviews ?? 0) > 0 ||
-    report.topPages.length > 0 ||
-    report.topSources.length > 0;
+    report.topPages.totalItems > 0 ||
+    report.topSources.totalItems > 0;
 
   return (
     <div className="space-y-8">
@@ -156,32 +188,64 @@ export function AnalyticsReport({ report }: AnalyticsReportProps) {
         <SummaryCard
           label="Pageviews (30d)"
           value={report.period30d?.pageviews ?? null}
-          hint="Top lists use 30 days"
+          hint="Fixed rolling window"
         />
         <SummaryCard label="Visitors (30d)" value={report.period30d?.visitors ?? null} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <BreakdownTable
-          title="Top pages (30d)"
-          rows={report.topPages}
-          valueLabel="Views"
-          emptyLabel="No page data yet."
+      <Suspense
+        fallback={<div className="surface-card h-48 animate-pulse rounded-xl bg-white/[0.02]" />}
+      >
+        <AnalyticsDateFilter range={report.range} />
+      </Suspense>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <SummaryCard
+          label={`Pageviews (${rangeLabel})`}
+          value={report.rangeSummary?.pageviews ?? null}
+          hint="Matches table filters"
         />
-        <BreakdownTable
-          title="Top referrers (30d)"
-          rows={report.topSources}
-          valueLabel="Views"
-          emptyLabel="No referrer data yet."
+        <SummaryCard
+          label={`Visitors (${rangeLabel})`}
+          value={report.rangeSummary?.visitors ?? null}
         />
       </div>
 
-      <BreakdownTable
-        title="Top countries (30d)"
-        rows={report.topCountries}
-        valueLabel="Views"
-        emptyLabel="No country data yet."
-      />
+      <div className="space-y-6">
+        <BreakdownTable
+          title={`Top pages (${rangeLabel})`}
+          rows={report.topPages.rows}
+          valueLabel="Views"
+          emptyLabel="No page data for this range."
+          pagination={{
+            pageKey: 'pagesPage',
+            table: report.topPages,
+            searchParams: paginationParams,
+          }}
+        />
+        <BreakdownTable
+          title={`Top referrers (${rangeLabel})`}
+          rows={report.topSources.rows}
+          valueLabel="Views"
+          emptyLabel="No referrer data for this range."
+          pagination={{
+            pageKey: 'referrersPage',
+            table: report.topSources,
+            searchParams: paginationParams,
+          }}
+        />
+        <BreakdownTable
+          title={`Top countries (${rangeLabel})`}
+          rows={report.topCountries.rows}
+          valueLabel="Views"
+          emptyLabel="No country data for this range."
+          pagination={{
+            pageKey: 'countriesPage',
+            table: report.topCountries,
+            searchParams: paginationParams,
+          }}
+        />
+      </div>
 
       <p className="text-xs text-ink-muted">
         Visitors are estimated with a privacy-friendly session id in localStorage. Country comes

@@ -252,23 +252,23 @@ export type Database = {
         Returns: undefined;
       };
       analytics_summary: {
-        Args: { p_since: string };
+        Args: { p_since: string; p_until?: string | null };
         Returns: Array<{ pageviews: number; visitors: number; visits: number }>;
       };
       analytics_top_pages: {
-        Args: { p_since: string; p_limit?: number };
+        Args: { p_since: string; p_limit?: number; p_until?: string | null };
         Returns: Array<{ path: string; pageviews: number; visitors: number }>;
       };
       analytics_top_referrers: {
-        Args: { p_since: string; p_limit?: number };
+        Args: { p_since: string; p_limit?: number; p_until?: string | null };
         Returns: Array<{ referrer_host: string; pageviews: number; visitors: number }>;
       };
       analytics_top_countries: {
-        Args: { p_since: string; p_limit?: number };
+        Args: { p_since: string; p_limit?: number; p_until?: string | null };
         Returns: Array<{ country_code: string; pageviews: number; visitors: number }>;
       };
       analytics_public_top_blog_slugs: {
-        Args: { p_since: string; p_limit?: number };
+        Args: { p_since: string; p_limit?: number; p_until?: string | null };
         Returns: Array<{ slug: string; pageviews: number; visitors: number }>;
       };
       search_published_content: {
