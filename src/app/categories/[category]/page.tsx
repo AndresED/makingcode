@@ -5,6 +5,7 @@ import { ListLayout } from '@/components/layout/list-layout';
 import { Pagination } from '@/components/pagination';
 import { PostGrid } from '@/components/post-grid';
 import { categoryLabel } from '@/lib/i18n/category';
+import { categoryDescription } from '@/lib/i18n/category-copy';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { isPostCategory } from '@/lib/posts/categories';
@@ -46,6 +47,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     listPublishedPosts({ page: 1, pageSize: 5 }),
   ]);
 
+  const countLabel =
+    result.total === 1
+      ? t(locale, 'category.articleCount').replace('{count}', String(result.total))
+      : t(locale, 'category.articleCountPlural').replace('{count}', String(result.total));
+
   return (
     <ListLayout
       locale={locale}
@@ -59,9 +65,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
             {categoryLabel(locale, category)}
           </h1>
-          <p className="text-ink-muted">
-            {result.total} {result.total === 1 ? 'article' : 'articles'}
+          <p className="max-w-2xl text-lg leading-relaxed text-ink-muted">
+            {categoryDescription(locale, category)}
           </p>
+          <p className="text-sm text-ink-muted">{countLabel}</p>
         </header>
 
         {result.posts.length === 0 ? (

@@ -182,26 +182,47 @@ export async function listRelatedPosts(
   postId: string,
   category: PostCategory,
   locale?: Locale,
-  limit = 3,
+  options?: { seriesSlug?: string | null; limit?: number },
 ): Promise<PostSummary[]> {
   const resolvedLocale = locale ?? (await getLocale());
-  const supabase = createAnonClient();
-  const { data, error } = await supabase
-    .from('posts')
-    .select(summaryColumns)
-    .eq('status', 'published')
-    .eq('category', category)
-    .neq('id', postId)
-    .order('published_at', { ascending: false })
-    .limit(limit);
+  const limit = options?.limit ?? 3;
+  const related: PostSummary[] = [];
+  const seen = new Set<string>([postId]);
 
-  if (error) {
-    throw formatSupabaseError(error);
+  if (options?.seriesSlug) {
+    const inSeries = await listPublishedPostsInSeries(options.seriesSlug, resolvedLocale);
+    for (const post of inSeries) {
+      if (related.length >= limit) break;
+      if (seen.has(post.id)) continue;
+      seen.add(post.id);
+      related.push(post);
+    }
   }
 
-  return ((data ?? []) as PostRecord[]).map((row) =>
-    toSummary(localizePost(row, resolvedLocale)),
-  );
+  if (related.length < limit) {
+    const supabase = createAnonClient();
+    const { data, error } = await supabase
+      .from('posts')
+      .select(summaryColumns)
+      .eq('status', 'published')
+      .eq('category', category)
+      .neq('id', postId)
+      .order('published_at', { ascending: false })
+      .limit(limit * 2);
+
+    if (error) {
+      throw formatSupabaseError(error);
+    }
+
+    for (const row of (data ?? []) as PostRecord[]) {
+      if (related.length >= limit) break;
+      if (seen.has(row.id)) continue;
+      seen.add(row.id);
+      related.push(toSummary(localizePost(row, resolvedLocale)));
+    }
+  }
+
+  return related;
 }
 
 export interface PublishedSeriesSummary {

@@ -17,6 +17,14 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
       name: siteConfig.name,
       url: siteConfig.url,
     },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteConfig.url}/blog?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   };
 }
 
@@ -101,4 +109,25 @@ export function buildPostBreadcrumbJsonLd(
     },
     { name: post.title, url: `${siteConfig.url}/blog/${post.slug}` },
   ]);
+}
+
+export function buildSeriesItemListJsonLd(
+  seriesSlug: string,
+  seriesName: string,
+  posts: ReadonlyArray<{ slug: string; title: string }>,
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: seriesName,
+    url: `${siteConfig.url}/series/${seriesSlug}`,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    numberOfItems: posts.length,
+    itemListElement: posts.map((post, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: post.title,
+      url: `${siteConfig.url}/blog/${post.slug}`,
+    })),
+  };
 }

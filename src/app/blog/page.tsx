@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { Pagination } from '@/components/pagination';
@@ -7,7 +8,7 @@ import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
-import { searchPublishedPosts } from '@/lib/posts/search';
+import { searchPublishedContent } from '@/lib/posts/search';
 import { buildBlogMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 300;
@@ -40,14 +41,20 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const [recentResult, result] = await Promise.all([
     listPublishedPosts({ page: 1, pageSize: 5, locale }),
     isSearch
-      ? searchPublishedPosts(query, locale, 50).then((posts) => ({
+      ? searchPublishedContent(query, locale, 50).then(({ posts, series }) => ({
           posts,
+          series,
           page: 1,
           totalPages: 1,
-          total: 0,
+          total: posts.length,
         }))
-      : listPublishedPosts({ page, locale }),
+      : listPublishedPosts({ page, locale }).then((data) => ({
+          ...data,
+          series: [] as const,
+        })),
   ]);
+
+  const resultCount = result.posts.length + (isSearch ? result.series.length : 0);
 
   return (
     <ListLayout
@@ -64,20 +71,44 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {isSearch ? (
             <p className="text-ink-muted">
               &ldquo;{query}&rdquo; —{' '}
-              {result.posts.length === 1
-                ? t(locale, 'blog.resultCount').replace('{count}', String(result.posts.length))
-                : t(locale, 'blog.resultCountPlural').replace('{count}', String(result.posts.length))}
+              {resultCount === 1
+                ? t(locale, 'blog.resultCount').replace('{count}', String(resultCount))
+                : t(locale, 'blog.resultCountPlural').replace('{count}', String(resultCount))}
             </p>
           ) : (
             <p className="text-ink-muted">{t(locale, 'home.subtitle')}</p>
           )}
         </header>
 
-        {result.posts.length === 0 ? (
+        {result.posts.length === 0 && result.series.length === 0 ? (
           <EmptyPosts locale={locale} />
         ) : (
           <>
-            <PostGrid posts={result.posts} locale={locale} />
+            {isSearch && result.series.length > 0 ? (
+              <section className="space-y-4">
+                <h2 className="font-display text-lg text-ink">{t(locale, 'blog.searchSeries')}</h2>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {result.series.map((item) => (
+                    <li key={item.slug}>
+                      <Link
+                        href={`/series/${item.slug}`}
+                        className="surface-card surface-card-hover block p-4 transition-colors duration-150 ease-out"
+                      >
+                        <p className="font-medium text-ink">{item.title}</p>
+                        {item.excerpt ? (
+                          <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{item.excerpt}</p>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            {result.posts.length > 0 ? (
+              <PostGrid posts={result.posts} locale={locale} />
+            ) : null}
+
             {!isSearch ? (
               <Pagination
                 basePath="/blog"

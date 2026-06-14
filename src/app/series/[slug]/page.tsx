@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Breadcrumbs } from '@/components/blog/breadcrumbs';
 import { ListLayout } from '@/components/layout/list-layout';
 import { categoryLabel } from '@/lib/i18n/category';
 import { t } from '@/lib/i18n/dictionary';
@@ -10,6 +11,7 @@ import { formatSeriesName, seriesArticleCountLabel } from '@/lib/posts/format-se
 import { listPublishedPosts, listPublishedPostsInSeries } from '@/lib/posts/repository';
 import { getPostSeriesBySlug } from '@/lib/posts/series-repository';
 import { buildSeriesMetadata } from '@/lib/seo/page-metadata';
+import { buildSeriesItemListJsonLd } from '@/lib/seo/json-ld';
 
 export const revalidate = 3600;
 
@@ -51,6 +53,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   if (ordered.length === 0) notFound();
 
   const titles = series ? { title_en: series.title_en, title_es: series.title_es } : null;
+  const seriesName = formatSeriesName(slug, locale, titles);
+  const itemListJsonLd = buildSeriesItemListJsonLd(
+    slug,
+    seriesName,
+    ordered.map((post) => ({ slug: post.slug, title: post.title })),
+  );
 
   return (
     <ListLayout
@@ -60,14 +68,17 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
       activeSeriesSlug={slug}
     >
       <section className="space-y-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        />
         <header className="space-y-4">
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
-            <Link href="/series" className="transition-colors duration-150 ease-out hover:text-ink">
-              {t(locale, 'article.backToSeries')}
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-ink">{formatSeriesName(slug, locale, titles)}</span>
-          </nav>
+          <Breadcrumbs
+            items={[
+              { label: t(locale, 'article.backToSeries'), href: '/series' },
+              { label: seriesName },
+            ]}
+          />
           <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
             {formatSeriesName(slug, locale, titles)}

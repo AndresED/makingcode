@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
+import type { SeriesSearchHit } from '@/lib/posts/search';
 import type { PostSummary } from '@/lib/posts/types';
 
 interface BlogSearchProps {
@@ -12,33 +13,38 @@ interface BlogSearchProps {
   className?: string;
 }
 
+interface SearchResponse {
+  posts: PostSummary[];
+  series: SeriesSearchHit[];
+}
+
 export function BlogSearch({ locale, className = '' }: BlogSearchProps) {
   const inputId = useId();
   const listId = `${inputId}-results`;
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<PostSummary[]>([]);
+  const [posts, setPosts] = useState<PostSummary[]>([]);
+  const [series, setSeries] = useState<SeriesSearchHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const search = useCallback(
-    async (q: string) => {
-      if (q.trim().length < 2) {
-        setResults([]);
-        return;
-      }
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}`);
-        const data = (await res.json()) as { posts: PostSummary[] };
-        setResults(data.posts ?? []);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  const search = useCallback(async (q: string) => {
+    if (q.trim().length < 2) {
+      setPosts([]);
+      setSeries([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}`);
+      const data = (await res.json()) as SearchResponse;
+      setPosts(data.posts ?? []);
+      setSeries(data.series ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -65,6 +71,8 @@ export function BlogSearch({ locale, className = '' }: BlogSearchProps) {
     }
   }
 
+  const hasResults = posts.length > 0 || series.length > 0;
+
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <form onSubmit={onSubmit} role="search">
@@ -84,7 +92,7 @@ export function BlogSearch({ locale, className = '' }: BlogSearchProps) {
             onFocus={() => setOpen(true)}
             placeholder={t(locale, 'blog.search')}
             autoComplete="off"
-            aria-controls={open && results.length > 0 ? listId : undefined}
+            aria-controls={open && hasResults ? listId : undefined}
             className="w-full rounded-xl border border-white/[0.08] bg-dark-900/80 py-2.5 pl-10 pr-4 text-sm text-ink placeholder:text-ink-muted/70 transition-[border-color] duration-150 ease-out focus:border-meta-500/40 focus:outline-none"
           />
         </div>
@@ -97,23 +105,50 @@ export function BlogSearch({ locale, className = '' }: BlogSearchProps) {
         >
           {loading ? (
             <p className="px-4 py-3 text-sm text-ink-muted">…</p>
-          ) : results.length === 0 ? (
+          ) : !hasResults ? (
             <p className="px-4 py-3 text-sm text-ink-muted">{t(locale, 'blog.noResults')}</p>
           ) : (
-            <ul className="divide-y divide-white/[0.06] py-1" aria-label={t(locale, 'blog.results')}>
-              {results.map((post) => (
-                <li key={post.id}>
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    onClick={() => setOpen(false)}
-                    className="block px-4 py-3 transition-colors duration-150 ease-out hover:bg-white/[0.04]"
-                  >
-                    <span className="line-clamp-1 text-sm font-medium text-ink">{post.title}</span>
-                    <span className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{post.excerpt}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="divide-y divide-white/[0.06] py-1">
+              {series.length > 0 ? (
+                <section aria-label={t(locale, 'blog.searchSeries')}>
+                  <p className="px-4 pt-2 text-xs font-medium uppercase tracking-wide text-ink-muted">
+                    {t(locale, 'blog.searchSeries')}
+                  </p>
+                  <ul>
+                    {series.map((item) => (
+                      <li key={item.slug}>
+                        <Link
+                          href={`/series/${item.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="block px-4 py-3 transition-colors duration-150 ease-out hover:bg-white/[0.04]"
+                        >
+                          <span className="line-clamp-1 text-sm font-medium text-ink">{item.title}</span>
+                          {item.excerpt ? (
+                            <span className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{item.excerpt}</span>
+                          ) : null}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {posts.length > 0 ? (
+                <ul aria-label={t(locale, 'blog.results')}>
+                  {posts.map((post) => (
+                    <li key={post.id}>
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="block px-4 py-3 transition-colors duration-150 ease-out hover:bg-white/[0.04]"
+                      >
+                        <span className="line-clamp-1 text-sm font-medium text-ink">{post.title}</span>
+                        <span className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{post.excerpt}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           )}
         </div>
       ) : null}

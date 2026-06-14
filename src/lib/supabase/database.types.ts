@@ -211,6 +211,25 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      search_published_content: {
+        Args: {
+          search_query: string;
+          search_locale?: string;
+          result_limit?: number;
+        };
+        Returns: Array<{
+          result_type: string;
+          id: string;
+          slug: string;
+          title: string;
+          excerpt: string;
+          category: string | null;
+          cover_image_url: string | null;
+          reading_time_minutes: number | null;
+          published_at: string | null;
+          rank: number;
+        }>;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

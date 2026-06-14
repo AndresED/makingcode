@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation';
 import { AuthorCard } from '@/components/blog/author-card';
 import { BackToTop } from '@/components/blog/back-to-top';
 import { CodeCopyEnhancer } from '@/components/blog/code-copy-enhancer';
-import { PostToc } from '@/components/blog/post-toc';
+import { PostToc, PostTocMobile } from '@/components/blog/post-toc';
+import { Breadcrumbs } from '@/components/blog/breadcrumbs';
 import { ReadingProgress } from '@/components/blog/reading-progress';
 import { NewsletterForm } from '@/components/blog/newsletter-form';
 import { PostComments } from '@/components/blog/post-comments';
@@ -70,7 +71,9 @@ export default async function PostPage({ params }: PostPageProps) {
   const { post, locale } = loaded;
 
   const [relatedPosts, seriesPosts] = await Promise.all([
-    listRelatedPosts(post.id, post.category, locale),
+    listRelatedPosts(post.id, post.category, locale, {
+      seriesSlug: post.series_slug,
+    }),
     post.series_slug ? listSeriesPosts(post.series_slug, locale) : Promise.resolve([]),
   ]);
 
@@ -97,12 +100,17 @@ export default async function PostPage({ params }: PostPageProps) {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
           />
 
-          <Link
-            href="/blog"
-            className="mb-8 inline-flex items-center gap-1.5 text-sm text-ink-muted transition-colors duration-150 ease-out hover:text-ink"
-          >
-            ← {t(locale, 'article.back')}
-          </Link>
+          <Breadcrumbs
+            className="mb-8"
+            items={[
+              { label: t(locale, 'breadcrumb.blog'), href: '/blog' },
+              {
+                label: categoryLabel(locale, post.category),
+                href: `/categories/${post.category}`,
+              },
+              { label: post.title },
+            ]}
+          />
 
           {post.series_slug ? (
             <SeriesNav
@@ -135,6 +143,8 @@ export default async function PostPage({ params }: PostPageProps) {
             </h1>
             <p className="text-lg leading-relaxed text-ink-muted">{post.excerpt}</p>
           </header>
+
+          <PostTocMobile items={toc} locale={locale} />
 
           <figure className="mb-10 overflow-hidden rounded-2xl border border-white/[0.06]">
             <div className="relative aspect-[2/1] w-full bg-dark-900">

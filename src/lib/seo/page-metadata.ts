@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/i18n/dictionary';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
 import { t } from '@/lib/i18n/dictionary';
 import { categoryLabel } from '@/lib/i18n/category';
+import { categoryDescription } from '@/lib/i18n/category-copy';
 import type { PostCategory } from '@/lib/posts/categories';
 import { siteConfig } from './site';
 
@@ -88,10 +89,7 @@ export function buildCategoryMetadata(
   const totalPages = options?.totalPages ?? 1;
   const basePath = `/categories/${category}`;
 
-  const description =
-    locale === 'es'
-      ? `Artículos de ${label} en Making Code — backend, cloud y arquitectura en producción.`
-      : `${label} articles on Making Code — backend, cloud, and production architecture.`;
+  const description = categoryDescription(locale, category);
 
   const metadata: Metadata = {
     title: label,
