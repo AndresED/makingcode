@@ -2,6 +2,15 @@ import type { PostCategory } from './categories';
 
 export type PostStatus = 'draft' | 'published';
 
+/** Series membership joined from post_series + post_series_members. */
+export interface PostSeriesMembership {
+  series_id: string;
+  series_slug: string;
+  title_en: string;
+  title_es: string;
+  position: number;
+}
+
 /** Row shape from Supabase (bilingual storage). */
 export interface PostRecord {
   id: string;
@@ -17,8 +26,8 @@ export interface PostRecord {
   body_html_es: string;
   category: PostCategory;
   cover_image_url: string | null;
-  series_slug?: string | null;
-  series_order?: number | null;
+  /** Populated via join; not a posts column. */
+  series?: PostSeriesMembership | null;
   reading_time_minutes: number;
   status: PostStatus;
   author_id: string;

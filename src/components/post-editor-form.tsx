@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CoverImageUpload } from '@/components/blog/cover-image-upload';
 import { MarkdownField } from '@/components/blog/markdown-field';
@@ -57,27 +58,27 @@ export function PostEditorForm({ post }: PostEditorFormProps) {
             </p>
             <CoverImageUpload defaultValue={post?.cover_image_url ?? ''} />
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-ink-muted">Series slug (optional)</label>
-            <input
-              name="series_slug"
-              defaultValue={post?.series_slug ?? ''}
-              placeholder="nestjs-infrastructure"
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 font-mono text-sm text-ink"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-ink-muted">Series order (optional)</label>
-            <input
-              name="series_order"
-              type="number"
-              min={1}
-              max={99}
-              defaultValue={post?.series_order ?? ''}
-              className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-ink"
-            />
-          </div>
+          {post?.series?.series_slug ? (
+            <div className="sm:col-span-2 rounded-lg border border-white/8 bg-dark-800/50 px-3 py-2 text-sm text-ink-muted">
+              Series:{' '}
+              <Link
+                href={`/dashboard/series/${post.series.series_slug}`}
+                className="font-mono text-meta-400 hover:text-ink"
+              >
+                {post.series.series_slug}
+                {post.series.position ? ` #${post.series.position}` : ''}
+              </Link>
+              . Manage order in the series dashboard.
+            </div>
+          ) : post ? (
+            <div className="sm:col-span-2 text-xs text-ink-muted">
+              Assign this post to a series from{' '}
+              <Link href="/dashboard/series" className="text-meta-400 hover:text-ink">
+                Dashboard → Series
+              </Link>
+              .
+            </div>
+          ) : null}
         </div>
 
         {post ? (

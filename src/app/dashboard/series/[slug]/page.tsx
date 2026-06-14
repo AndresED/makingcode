@@ -8,6 +8,7 @@ import {
   listPostsAvailableForSeriesAdmin,
   listPostsInSeriesAdmin,
 } from '@/lib/posts/series-admin';
+import { getPostSeriesBySlug, upsertPostSeriesBySlug } from '@/lib/posts/series-repository';
 
 export const metadata: Metadata = {
   title: 'Manage series',
@@ -26,12 +27,18 @@ export default async function DashboardSeriesDetailPage({
   const { slug } = await params;
   if (!isValidSeriesSlug(slug)) notFound();
 
+  const series =
+    (await getPostSeriesBySlug(slug)) ?? (await upsertPostSeriesBySlug(slug));
+
   const [postsInSeries, availablePosts] = await Promise.all([
     listPostsInSeriesAdmin(slug),
     listPostsAvailableForSeriesAdmin(slug),
   ]);
 
-  const displayName = formatSeriesName(slug);
+  const displayName = formatSeriesName(slug, 'en', {
+    title_en: series.title_en,
+    title_es: series.title_es,
+  });
   const publicUrl = `/series/${slug}`;
 
   return (
@@ -61,6 +68,7 @@ export default async function DashboardSeriesDetailPage({
 
       <SeriesManager
         seriesSlug={slug}
+        seriesTitles={{ title_en: series.title_en, title_es: series.title_es }}
         postsInSeries={postsInSeries}
         availablePosts={availablePosts}
       />

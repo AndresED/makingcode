@@ -8,6 +8,7 @@ import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { formatSeriesName, seriesArticleCountLabel } from '@/lib/posts/format-series-name';
 import { listPublishedPosts, listPublishedPostsInSeries } from '@/lib/posts/repository';
+import { getPostSeriesBySlug } from '@/lib/posts/series-repository';
 import { buildSeriesMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 3600;
@@ -19,11 +20,15 @@ interface SeriesPageProps {
 export async function generateMetadata({ params }: SeriesPageProps): Promise<Metadata> {
   const { slug } = await params;
   const locale = await getLocale();
-  const ordered = await listPublishedPostsInSeries(slug, locale);
+  const [ordered, series] = await Promise.all([
+    listPublishedPostsInSeries(slug, locale),
+    getPostSeriesBySlug(slug),
+  ]);
+  const titles = series ? { title_en: series.title_en, title_es: series.title_es } : null;
   if (ordered.length === 0) {
-    return { title: formatSeriesName(slug, locale) };
+    return { title: formatSeriesName(slug, locale, titles) };
   }
-  return buildSeriesMetadata(locale, slug, ordered.length);
+  return buildSeriesMetadata(locale, slug, ordered.length, titles);
 }
 
 function formatDate(iso: string, locale: string): string {
@@ -37,12 +42,15 @@ function formatDate(iso: string, locale: string): string {
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params;
   const locale = await getLocale();
-  const [ordered, recentResult] = await Promise.all([
+  const [ordered, recentResult, series] = await Promise.all([
     listPublishedPostsInSeries(slug, locale),
     listPublishedPosts({ page: 1, pageSize: 5 }),
+    getPostSeriesBySlug(slug),
   ]);
 
   if (ordered.length === 0) notFound();
+
+  const titles = series ? { title_en: series.title_en, title_es: series.title_es } : null;
 
   return (
     <ListLayout
@@ -60,7 +68,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           </Link>
           <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
           <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
-            {formatSeriesName(slug, locale)}
+            {formatSeriesName(slug, locale, titles)}
           </h1>
           <p className="text-ink-muted">{seriesArticleCountLabel(locale, ordered.length)}</p>
         </header>

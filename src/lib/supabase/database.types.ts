@@ -12,6 +12,78 @@ export type Database = {
   };
   public: {
     Tables: {
+      post_series: {
+        Row: {
+          id: string;
+          slug: string;
+          title_en: string;
+          title_es: string;
+          description_en: string | null;
+          description_es: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title_en: string;
+          title_es: string;
+          description_en?: string | null;
+          description_es?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title_en?: string;
+          title_es?: string;
+          description_en?: string | null;
+          description_es?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      post_series_members: {
+        Row: {
+          id: string;
+          series_id: string;
+          post_id: string;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          series_id: string;
+          post_id: string;
+          position: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          series_id?: string;
+          post_id?: string;
+          position?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'post_series_members_series_id_fkey';
+            columns: ['series_id'];
+            isOneToOne: false;
+            referencedRelation: 'post_series';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'post_series_members_post_id_fkey';
+            columns: ['post_id'];
+            isOneToOne: true;
+            referencedRelation: 'posts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       posts: {
         Row: {
           author_id: string;
@@ -21,8 +93,6 @@ export type Database = {
           body_md_es: string;
           category: string;
           cover_image_url: string | null;
-          series_slug: string | null;
-          series_order: number | null;
           created_at: string;
           excerpt_en: string;
           excerpt_es: string;
@@ -44,8 +114,6 @@ export type Database = {
           body_md_es: string;
           category: string;
           cover_image_url?: string | null;
-          series_slug?: string | null;
-          series_order?: number | null;
           created_at?: string;
           excerpt_en: string;
           excerpt_es: string;
@@ -67,8 +135,6 @@ export type Database = {
           body_md_es?: string;
           category?: string;
           cover_image_url?: string | null;
-          series_slug?: string | null;
-          series_order?: number | null;
           created_at?: string;
           excerpt_en?: string;
           excerpt_es?: string;

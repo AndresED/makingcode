@@ -161,8 +161,6 @@ async function main() {
       body_html_es,
       category,
       cover_image_url: en.meta.cover_image_url || null,
-      series_slug,
-      series_order,
       reading_time_minutes: Math.max(estimateReadingTime(en.body), estimateReadingTime(es.body)),
       status: 'published',
       published_at,
@@ -182,10 +180,34 @@ async function main() {
 
     if (existing) {
       const { error } = await supabase.from('posts').update(row).eq('id', existing.id);
-      console.log(error ? `✗ ${topic}: ${error.message}` : `✓ Actualizado ${slug_en}`);
+      if (error) {
+        console.log(`✗ ${topic}: ${error.message}`);
+        continue;
+      }
+      if (series_slug && series_order != null) {
+        const { upsertSeriesMembership } = await import('./lib/post-series.mjs');
+        await upsertSeriesMembership(supabase, {
+          seriesSlug: series_slug,
+          seriesOrder: series_order,
+          postId: existing.id,
+        });
+      }
+      console.log(`✓ Actualizado ${slug_en}`);
     } else {
-      const { error } = await supabase.from('posts').insert(row);
-      console.log(error ? `✗ ${topic}: ${error.message}` : `✓ Publicado ${slug_en} + ${slug_es}`);
+      const { data: inserted, error } = await supabase.from('posts').insert(row).select('id').single();
+      if (error) {
+        console.log(`✗ ${topic}: ${error.message}`);
+        continue;
+      }
+      if (series_slug && series_order != null && inserted?.id) {
+        const { upsertSeriesMembership } = await import('./lib/post-series.mjs');
+        await upsertSeriesMembership(supabase, {
+          seriesSlug: series_slug,
+          seriesOrder: series_order,
+          postId: inserted.id,
+        });
+      }
+      console.log(`✓ Publicado ${slug_en} + ${slug_es}`);
     }
   }
 

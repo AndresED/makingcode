@@ -42,7 +42,7 @@ function buildSeriesRoutes(base: string, records: PostRecord[]): MetadataRoute.S
   const seriesDates = new Map<string, Date>();
 
   for (const post of records) {
-    const slug = post.series_slug?.trim();
+    const slug = post.series?.series_slug?.trim();
     if (!slug) continue;
 
     const modified = postLastModified(post);

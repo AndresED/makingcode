@@ -151,8 +151,6 @@ async function main() {
 
       const patch = {
         cover_image_url,
-        series_slug,
-        series_order,
       };
 
       if (dryRun) {
@@ -161,7 +159,21 @@ async function main() {
       }
 
       const { error } = await supabase.from('posts').update(patch).eq('id', existing.id);
-      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Covers/series ${entry.slug}`);
+      if (error) {
+        console.log(`✗ ${entry.slug}: ${error.message}`);
+        continue;
+      }
+
+      if (series_slug && series_order != null) {
+        const { upsertSeriesMembership } = await import('./lib/post-series.mjs');
+        await upsertSeriesMembership(supabase, {
+          seriesSlug: series_slug,
+          seriesOrder: series_order,
+          postId: existing.id,
+        });
+      }
+
+      console.log(`✓ Covers/series ${entry.slug}`);
       continue;
     }
 
@@ -197,8 +209,6 @@ async function main() {
         : body_html_es,
       category: entry.category,
       cover_image_url,
-      series_slug,
-      series_order,
       reading_time_minutes,
       status: 'published',
       published_at:
@@ -216,10 +226,34 @@ async function main() {
 
     if (existing) {
       const { error } = await supabase.from('posts').update(row).eq('id', existing.id);
-      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Updated /blog/${slug_en}`);
+      if (error) {
+        console.log(`✗ ${entry.slug}: ${error.message}`);
+        continue;
+      }
+      if (series_slug && series_order != null) {
+        const { upsertSeriesMembership } = await import('./lib/post-series.mjs');
+        await upsertSeriesMembership(supabase, {
+          seriesSlug: series_slug,
+          seriesOrder: series_order,
+          postId: existing.id,
+        });
+      }
+      console.log(`✓ Updated /blog/${slug_en}`);
     } else {
-      const { error } = await supabase.from('posts').insert(row);
-      console.log(error ? `✗ ${entry.slug}: ${error.message}` : `✓ Published /blog/${slug_en}`);
+      const { data: inserted, error } = await supabase.from('posts').insert(row).select('id').single();
+      if (error) {
+        console.log(`✗ ${entry.slug}: ${error.message}`);
+        continue;
+      }
+      if (series_slug && series_order != null && inserted?.id) {
+        const { upsertSeriesMembership } = await import('./lib/post-series.mjs');
+        await upsertSeriesMembership(supabase, {
+          seriesSlug: series_slug,
+          seriesOrder: series_order,
+          postId: inserted.id,
+        });
+      }
+      console.log(`✓ Published /blog/${slug_en}`);
     }
   }
 

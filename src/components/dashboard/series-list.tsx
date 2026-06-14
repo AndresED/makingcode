@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import Link from 'next/link';
 import { createSeriesRedirectAction } from '@/lib/posts/series-actions';
-import type { AdminSeriesSummary } from '@/lib/posts/series-admin';
+import type { AdminSeriesSummary } from '@/lib/posts/series-repository';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
 
 interface SeriesListProps {
@@ -66,7 +66,12 @@ export function SeriesList({ series, unassignedCount }: SeriesListProps) {
               className="flex flex-col gap-3 px-4 py-4 transition-colors duration-150 ease-out hover:bg-white/[0.02] sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="font-medium text-ink">{formatSeriesName(item.slug)}</p>
+                <p className="font-medium text-ink">
+                  {formatSeriesName(item.slug, 'en', {
+                    title_en: item.title_en,
+                    title_es: item.title_es,
+                  })}
+                </p>
                 <p className="mt-0.5 font-mono text-xs text-ink-muted">{item.slug}</p>
                 <p className="mt-1 text-xs text-ink-muted">
                   {item.postCount} post{item.postCount === 1 ? '' : 's'} · {item.publishedCount}{' '}

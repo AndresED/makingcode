@@ -16,6 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
 const SERIES_SLUG = 'nestjs-enterprise';
+const SERIES_TITLES = { title_en: 'NestJS Enterprise', title_es: 'NestJS Enterprise' };
 
 /** Published conceptual articles currently live on makingcode.dev */
 const PATCHES = [
@@ -59,6 +60,37 @@ function loadEnvLocal() {
   }
 }
 
+async function ensureSeries(supabase, dryRun) {
+  const row = { slug: SERIES_SLUG, ...SERIES_TITLES };
+  if (dryRun) {
+    console.log(`[dry-run] upsert post_series → ${JSON.stringify(row)}`);
+    return { id: 'dry-run-series-id' };
+  }
+
+  const { data, error } = await supabase
+    .from('post_series')
+    .upsert(row, { onConflict: 'slug' })
+    .select('id')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function assignSeriesMember(supabase, seriesId, postId, position, dryRun) {
+  const member = { series_id: seriesId, post_id: postId, position };
+  if (dryRun) {
+    console.log(`[dry-run] upsert post_series_members → ${JSON.stringify(member)}`);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('post_series_members')
+    .upsert(member, { onConflict: 'post_id' });
+
+  if (error) throw error;
+}
+
 async function main() {
   loadEnvLocal();
 
@@ -80,6 +112,8 @@ async function main() {
     `Patching ${PATCHES.length} post(s)${coversOnly ? ' (covers only)' : ''}${dryRun ? ' [DRY RUN]' : ''}…\n`,
   );
 
+  const series = coversOnly ? null : await ensureSeries(supabase, dryRun);
+
   for (const patch of PATCHES) {
     const { data: existing, error: findError } = await supabase
       .from('posts')
@@ -100,19 +134,36 @@ async function main() {
     const row = coversOnly
       ? { cover_image_url: patch.cover_image_url }
       : {
-          series_slug: SERIES_SLUG,
-          series_order: patch.series_order,
           published_at: patch.published_at,
           cover_image_url: patch.cover_image_url,
         };
 
     if (dryRun) {
-      console.log(`[dry-run] ${patch.slug_en} → ${JSON.stringify(row)}`);
+      console.log(`[dry-run] ${patch.slug_en} posts → ${JSON.stringify(row)}`);
+      if (!coversOnly && series) {
+        await assignSeriesMember(supabase, series.id, existing.id, patch.series_order, true);
+      }
       continue;
     }
 
     const { error } = await supabase.from('posts').update(row).eq('id', existing.id);
-    console.log(error ? `✗ ${patch.slug_en}: ${error.message}` : `✓ ${patch.slug_en}`);
+    if (error) {
+      console.error(`✗ ${patch.slug_en}: ${error.message}`);
+      continue;
+    }
+
+    if (!coversOnly && series) {
+      try {
+        await assignSeriesMember(supabase, series.id, existing.id, patch.series_order, false);
+      } catch (memberError) {
+        console.error(
+          `✗ ${patch.slug_en} series member: ${memberError instanceof Error ? memberError.message : memberError}`,
+        );
+        continue;
+      }
+    }
+
+    console.log(`✓ ${patch.slug_en}`);
   }
 
   console.log('\nDone.');

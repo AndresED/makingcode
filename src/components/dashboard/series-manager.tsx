@@ -8,17 +8,24 @@ import {
   moveSeriesPostAction,
   removePostFromSeriesAction,
   renameSeriesSlugAction,
+  updateSeriesTitlesAction,
 } from '@/lib/posts/series-actions';
 import type { PostRecord } from '@/lib/posts/types';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
 
 interface SeriesManagerProps {
   seriesSlug: string;
+  seriesTitles: { title_en: string; title_es: string };
   postsInSeries: PostRecord[];
   availablePosts: PostRecord[];
 }
 
-export function SeriesManager({ seriesSlug, postsInSeries, availablePosts }: SeriesManagerProps) {
+export function SeriesManager({
+  seriesSlug,
+  seriesTitles,
+  postsInSeries,
+  availablePosts,
+}: SeriesManagerProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +66,7 @@ export function SeriesManager({ seriesSlug, postsInSeries, availablePosts }: Ser
               >
                 <div className="flex min-w-0 items-start gap-3">
                   <span className="mt-0.5 font-mono text-sm text-meta-400">
-                    {String(post.series_order ?? index + 1).padStart(2, '0')}
+                    {String(post.series?.position ?? index + 1).padStart(2, '0')}
                   </span>
                   <div className="min-w-0">
                     <Link
@@ -139,7 +146,7 @@ export function SeriesManager({ seriesSlug, postsInSeries, availablePosts }: Ser
                 {availablePosts.map((post) => (
                   <option key={post.id} value={post.id}>
                     {post.title_en}
-                    {post.series_slug ? ` (from ${post.series_slug})` : ''}
+                    {post.series?.series_slug ? ` (from ${post.series.series_slug})` : ''}
                   </option>
                 ))}
               </select>
@@ -165,8 +172,86 @@ export function SeriesManager({ seriesSlug, postsInSeries, availablePosts }: Ser
         </p>
       </section>
 
+      <SeriesTitlesForm
+        seriesSlug={seriesSlug}
+        initialTitles={seriesTitles}
+        disabled={pending}
+      />
+
       <RenameSeriesForm seriesSlug={seriesSlug} disabled={pending || postsInSeries.length === 0} />
     </div>
+  );
+}
+
+function SeriesTitlesForm({
+  seriesSlug,
+  initialTitles,
+  disabled,
+}: {
+  seriesSlug: string;
+  initialTitles: { title_en: string; title_es: string };
+  disabled: boolean;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [titleEn, setTitleEn] = useState(initialTitles.title_en);
+  const [titleEs, setTitleEs] = useState(initialTitles.title_es);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <section className="surface-card space-y-3 p-5">
+      <h2 className="font-display text-lg text-ink">Series titles</h2>
+      <p className="text-sm text-ink-muted">Shown on public series pages and navigation.</p>
+      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      <form
+        className="grid gap-3 sm:grid-cols-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setError(null);
+          startTransition(async () => {
+            const result = await updateSeriesTitlesAction(seriesSlug, {
+              title_en: titleEn,
+              title_es: titleEs,
+            });
+            if (result.error) {
+              setError(result.error);
+              return;
+            }
+            router.refresh();
+          });
+        }}
+      >
+        <div>
+          <label htmlFor="title-en" className="mb-1 block text-sm text-ink-muted">
+            Title (EN)
+          </label>
+          <input
+            id="title-en"
+            value={titleEn}
+            onChange={(e) => setTitleEn(e.target.value)}
+            className="w-full rounded-lg border border-white/[0.08] bg-dark-900/80 px-3 py-2 text-sm text-ink"
+          />
+        </div>
+        <div>
+          <label htmlFor="title-es" className="mb-1 block text-sm text-ink-muted">
+            Title (ES)
+          </label>
+          <input
+            id="title-es"
+            value={titleEs}
+            onChange={(e) => setTitleEs(e.target.value)}
+            className="w-full rounded-lg border border-white/[0.08] bg-dark-900/80 px-3 py-2 text-sm text-ink"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={disabled || pending}
+          className="sm:col-span-2 w-fit rounded-lg border border-white/[0.08] px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink disabled:opacity-40"
+        >
+          Save titles
+        </button>
+      </form>
+    </section>
   );
 }
 

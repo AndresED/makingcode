@@ -19,7 +19,7 @@ export function PostList({ posts }: PostListProps) {
     return posts.filter((post) => {
       if (status !== 'all' && post.status !== status) return false;
       if (!q) return true;
-      const haystack = `${post.title_en} ${post.title_es} ${post.slug_en} ${post.slug_es} ${post.category} ${post.series_slug ?? ''}`;
+      const haystack = `${post.title_en} ${post.title_es} ${post.slug_en} ${post.slug_es} ${post.category} ${post.series?.series_slug ?? ''}`;
       return haystack.toLowerCase().includes(q);
     });
   }, [posts, query, status]);
@@ -76,16 +76,16 @@ export function PostList({ posts }: PostListProps) {
                 </Link>
                 <p className="mt-1 truncate text-xs text-ink-muted">
                   {post.title_es}
-                  {post.series_slug ? (
+                  {post.series?.series_slug ? (
                     <>
                       {' '}
                       ·{' '}
                       <Link
-                        href={`/dashboard/series/${post.series_slug}`}
+                        href={`/dashboard/series/${post.series.series_slug}`}
                         className="text-meta-400 hover:text-ink"
                       >
-                        series: {post.series_slug}
-                        {post.series_order ? ` #${post.series_order}` : ''}
+                        series: {post.series.series_slug}
+                        {post.series.position ? ` #${post.series.position}` : ''}
                       </Link>
                     </>
                   ) : null}

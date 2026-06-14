@@ -125,8 +125,9 @@ export function buildSeriesMetadata(
   locale: Locale,
   seriesSlug: string,
   articleCount: number,
+  titles?: { title_en?: string; title_es?: string } | null,
 ): Metadata {
-  const name = formatSeriesName(seriesSlug, locale);
+  const name = formatSeriesName(seriesSlug, locale, titles);
 
   const description =
     locale === 'es'

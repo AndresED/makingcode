@@ -8,7 +8,18 @@ const SERIES_LABELS: Partial<Record<string, Record<Locale, string>>> = {
   },
 };
 
-export function formatSeriesName(slug: string, locale: Locale = 'en'): string {
+export function formatSeriesName(
+  slug: string,
+  locale: Locale = 'en',
+  titles?: { title_en?: string; title_es?: string } | null,
+): string {
+  if (titles) {
+    const fromDb = locale === 'es' ? titles.title_es : titles.title_en;
+    if (fromDb?.trim()) return fromDb.trim();
+    const fallback = titles.title_en || titles.title_es;
+    if (fallback?.trim()) return fallback.trim();
+  }
+
   const label = SERIES_LABELS[slug]?.[locale];
   if (label) return label;
 
