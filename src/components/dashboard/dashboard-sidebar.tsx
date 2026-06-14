@@ -33,6 +33,11 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Newsletter',
     match: (pathname) => pathname.startsWith('/dashboard/newsletter'),
   },
+  {
+    href: '/dashboard/analytics',
+    label: 'Analytics',
+    match: (pathname) => pathname.startsWith('/dashboard/analytics'),
+  },
 ];
 
 function NavLinks({

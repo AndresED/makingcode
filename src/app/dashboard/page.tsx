@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PostList } from '@/components/dashboard/post-list';
+import { getAnalyticsDashboardReport } from '@/lib/analytics/plausible-stats';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
 
@@ -12,15 +13,32 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const [posts, unreadNewsletterCount] = await Promise.all([
+  const [posts, unreadNewsletterCount, analytics] = await Promise.all([
     listAllPostsForAdmin(),
     countUnreadNewsletterSubscribers(),
+    getAnalyticsDashboardReport(),
   ]);
   const published = posts.filter((p) => p.status === 'published').length;
   const drafts = posts.filter((p) => p.status === 'draft').length;
 
   return (
     <section className="space-y-6">
+      {analytics.configured && analytics.period7d && !analytics.error ? (
+        <Link
+          href="/dashboard/analytics"
+          className="surface-card flex flex-wrap items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-white/[0.03]"
+        >
+          <div>
+            <p className="text-sm font-medium text-ink">Site analytics</p>
+            <p className="mt-1 text-sm text-ink-muted">
+              {analytics.period7d.pageviews.toLocaleString()} pageviews ·{' '}
+              {analytics.period7d.visitors.toLocaleString()} visitors (7d)
+            </p>
+          </div>
+          <span className="shrink-0 text-sm text-accent-400">View report →</span>
+        </Link>
+      ) : null}
+
       {unreadNewsletterCount > 0 ? (
         <Link
           href="/dashboard/newsletter"
