@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
-import { getLocale } from '@/lib/i18n/locale';
 import { categoryLabel } from '@/lib/i18n/category';
-import { getPublishedPostBySlug } from '@/lib/posts/repository';
+import { localizePost } from '@/lib/posts/localize';
+import { getPublishedPostRecordBySlug } from '@/lib/posts/repository';
+import { localeFromPostSlug } from '@/lib/seo/locale-from-slug';
 import { siteConfig } from '@/lib/seo/site';
 
 export const alt = 'Article';
@@ -14,8 +15,9 @@ interface OgImageProps {
 
 export default async function PostOpenGraphImage({ params }: OgImageProps) {
   const { slug } = await params;
-  const locale = await getLocale();
-  const post = await getPublishedPostBySlug(slug, locale);
+  const record = await getPublishedPostRecordBySlug(slug);
+  const locale = record ? localeFromPostSlug(record, slug) : 'en';
+  const post = record ? localizePost(record, locale) : null;
 
   const title = post?.title ?? siteConfig.name;
   const category = post ? categoryLabel(locale, post.category) : '';

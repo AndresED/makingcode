@@ -5,6 +5,7 @@ import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { getLocale } from '@/lib/i18n/locale';
 import { siteConfig } from '@/lib/seo/site';
 import { Analytics } from '@/components/analytics';
+import { SiteJsonLd } from '@/components/seo/site-json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import './globals.css';
@@ -48,6 +49,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh font-sans" suppressHydrationWarning>
+        <SiteJsonLd />
         <SiteHeader
           locale={locale}
           isAdmin={isAdmin}

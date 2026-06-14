@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { FeaturedPostCard } from '@/components/blog/featured-post-card';
 import { HomeHero } from '@/components/blog/home-hero';
 import { EmptyPosts } from '@/components/empty-posts';
@@ -8,8 +9,14 @@ import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { HOME_POSTS_LIMIT, MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
+import { buildHomeMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return buildHomeMetadata(locale);
+}
 
 export default async function HomePage() {
   const locale = await getLocale();

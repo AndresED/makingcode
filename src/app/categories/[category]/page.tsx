@@ -10,6 +10,7 @@ import { getLocale } from '@/lib/i18n/locale';
 import { isPostCategory } from '@/lib/posts/categories';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
+import { buildCategoryMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 300;
 
@@ -18,14 +19,19 @@ interface CategoryPageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
   if (!isPostCategory(category)) return { title: 'Not found' };
-  const label = category.charAt(0).toUpperCase() + category.slice(1);
-  return {
-    title: label,
-    description: `Articles in ${label} on Making Code.`,
-  };
+
+  const locale = await getLocale();
+  const query = await searchParams;
+  const page = Math.max(1, Number(query.page ?? '1') || 1);
+  const { totalPages } = await listPublishedPosts({ page, category });
+
+  return buildCategoryMetadata(locale, category, { page, totalPages });
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {

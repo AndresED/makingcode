@@ -8,14 +8,16 @@ import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
+import { buildPersonJsonLd } from '@/lib/seo/json-ld';
+import { buildAboutMetadata } from '@/lib/seo/page-metadata';
 import { siteConfig } from '@/lib/seo/site';
 
-export const metadata: Metadata = {
-  title: 'About',
-  description: `About ${siteConfig.name} and ${siteConfig.author.name}.`,
-};
-
 export const revalidate = 86_400;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return buildAboutMetadata(locale);
+}
 
 const STACK_ITEMS = [
   'NestJS',
@@ -38,6 +40,10 @@ export default async function AboutPage() {
       recentPosts={posts}
       showRecent={total >= MIN_POSTS_FOR_SIDEBAR_RECENT}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildPersonJsonLd()) }}
+      />
       <article className="max-w-2xl space-y-10">
         <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <AuthorAvatar size="lg" priority />

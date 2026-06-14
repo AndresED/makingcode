@@ -8,6 +8,7 @@ import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
 import { listPublishedPosts, listPublishedPostsInSeries } from '@/lib/posts/repository';
+import { buildSeriesMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 3600;
 
@@ -17,10 +18,12 @@ interface SeriesPageProps {
 
 export async function generateMetadata({ params }: SeriesPageProps): Promise<Metadata> {
   const { slug } = await params;
-  return {
-    title: formatSeriesName(slug),
-    description: `Article series: ${formatSeriesName(slug)} on Making Code.`,
-  };
+  const locale = await getLocale();
+  const ordered = await listPublishedPostsInSeries(slug, locale);
+  if (ordered.length === 0) {
+    return { title: formatSeriesName(slug) };
+  }
+  return buildSeriesMetadata(locale, slug, ordered.length);
 }
 
 function formatDate(iso: string, locale: string): string {

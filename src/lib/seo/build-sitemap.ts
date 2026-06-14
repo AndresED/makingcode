@@ -61,6 +61,10 @@ function buildSeriesRoutes(base: string, records: PostRecord[]): MetadataRoute.S
 }
 
 export function buildSitemap(records: PostRecord[]): MetadataRoute.Sitemap {
+  return [...buildStaticSitemap(), ...buildSeriesRoutes(siteConfig.url, records), ...buildPostRoutes(siteConfig.url, records)];
+}
+
+export function buildStaticSitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
   const now = new Date();
 
@@ -77,10 +81,5 @@ export function buildSitemap(records: PostRecord[]): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [
-    ...staticRoutes,
-    ...categoryRoutes,
-    ...buildSeriesRoutes(base, records),
-    ...buildPostRoutes(base, records),
-  ];
+  return [...staticRoutes, ...categoryRoutes];
 }

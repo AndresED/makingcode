@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { AuthorCard } from '@/components/blog/author-card';
 import { BackToTop } from '@/components/blog/back-to-top';
 import { CodeCopyEnhancer } from '@/components/blog/code-copy-enhancer';
@@ -14,15 +14,17 @@ import { PostCoverFallback } from '@/components/post-cover-fallback';
 import { PostContent } from '@/components/post-content';
 import { PostCoverImage } from '@/components/post-cover-image';
 import { categoryLabel } from '@/lib/i18n/category';
-import { t } from '@/lib/i18n/dictionary';
-import { getLocale } from '@/lib/i18n/locale';
+import { t, type Locale } from '@/lib/i18n/dictionary';
 import { extractTocFromMarkdown } from '@/lib/markdown/toc';
+import { localizePost } from '@/lib/posts/localize';
 import {
-  getPublishedPostBySlug,
+  getPublishedPostRecordBySlug,
   listPublishedSlugs,
   listRelatedPosts,
   listSeriesPosts,
 } from '@/lib/posts/repository';
+import { buildPostBreadcrumbJsonLd } from '@/lib/seo/json-ld';
+import { localeFromPostSlug } from '@/lib/seo/locale-from-slug';
 import { buildArticleJsonLd, buildPostMetadata } from '@/lib/seo/post-metadata';
 import { siteConfig } from '@/lib/seo/site';
 
@@ -32,6 +34,13 @@ interface PostPageProps {
   params: Promise<{ slug: string }>;
 }
 
+async function loadPostBySlug(slug: string) {
+  const record = await getPublishedPostRecordBySlug(slug);
+  if (!record) return null;
+  const locale = localeFromPostSlug(record, slug);
+  return { post: localizePost(record, locale), locale };
+}
+
 export async function generateStaticParams() {
   const slugs = await listPublishedSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -39,13 +48,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const locale = await getLocale();
-  const post = await getPublishedPostBySlug(slug, locale);
-  if (!post) return { title: 'Not found' };
-  return buildPostMetadata(post, locale);
+  const loaded = await loadPostBySlug(slug);
+  if (!loaded) return { title: 'Not found' };
+  return buildPostMetadata(loaded.post, loaded.locale);
 }
 
-function formatDate(iso: string, locale: string): string {
+function formatDate(iso: string, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === 'es' ? 'es' : 'en', {
     year: 'numeric',
     month: 'long',
@@ -55,13 +63,10 @@ function formatDate(iso: string, locale: string): string {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const locale = await getLocale();
-  const post = await getPublishedPostBySlug(slug, locale);
-  if (!post) notFound();
+  const loaded = await loadPostBySlug(slug);
+  if (!loaded) notFound();
 
-  if (post.slug !== slug) {
-    redirect(`/blog/${post.slug}`);
-  }
+  const { post, locale } = loaded;
 
   const [relatedPosts, seriesPosts] = await Promise.all([
     listRelatedPosts(post.id, post.category, locale),
@@ -69,7 +74,8 @@ export default async function PostPage({ params }: PostPageProps) {
   ]);
 
   const toc = extractTocFromMarkdown(post.body_md);
-  const jsonLd = buildArticleJsonLd(post, locale);
+  const articleJsonLd = buildArticleJsonLd(post, locale);
+  const breadcrumbJsonLd = buildPostBreadcrumbJsonLd(post, locale);
 
   return (
     <>
@@ -80,10 +86,14 @@ export default async function PostPage({ params }: PostPageProps) {
         data-slug-en={post.slug_en}
         data-slug-es={post.slug_es}
       >
-        <article className="min-w-0" data-article>
+        <article className="min-w-0" data-article lang={locale}>
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
           />
 
           <Link

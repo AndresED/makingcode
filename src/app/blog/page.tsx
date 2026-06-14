@@ -8,16 +8,26 @@ import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
 import { searchPublishedPosts } from '@/lib/posts/search';
-
-export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Articles on backend engineering, cloud, and software architecture.',
-};
+import { buildBlogMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 300;
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string; q?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
+  const locale = await getLocale();
+  const params = await searchParams;
+  const query = params.q?.trim() ?? '';
+  const page = Math.max(1, Number(params.page ?? '1') || 1);
+
+  if (query.length >= 2) {
+    return buildBlogMetadata(locale, { query });
+  }
+
+  const { totalPages } = await listPublishedPosts({ page });
+  return buildBlogMetadata(locale, { page, totalPages });
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {

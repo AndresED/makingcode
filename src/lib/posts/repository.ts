@@ -131,12 +131,22 @@ export async function getPublishedPostRecordBySlug(slug: string): Promise<PostRe
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(recordColumnsWithSeries)
     .eq('status', 'published')
     .or(`slug_en.eq.${slug},slug_es.eq.${slug}`)
     .maybeSingle();
 
   if (error) {
+    if (error.message.includes('series_slug') || error.message.includes('series_order')) {
+      const fallback = await supabase
+        .from('posts')
+        .select(recordColumns)
+        .eq('status', 'published')
+        .or(`slug_en.eq.${slug},slug_es.eq.${slug}`)
+        .maybeSingle();
+      if (fallback.error) throw formatSupabaseError(fallback.error);
+      return (fallback.data as PostRecord | null) ?? null;
+    }
     throw formatSupabaseError(error);
   }
 
