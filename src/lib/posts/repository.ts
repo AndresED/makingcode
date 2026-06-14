@@ -165,11 +165,20 @@ export async function listPublishedPostRecords(): Promise<PostRecord[]> {
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('posts')
-    .select(recordColumns)
+    .select(recordColumnsWithSeries)
     .eq('status', 'published')
     .order('published_at', { ascending: false });
 
   if (error) {
+    if (error.message.includes('series_slug') || error.message.includes('series_order')) {
+      const fallback = await supabase
+        .from('posts')
+        .select(recordColumns)
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+      if (fallback.error) throw formatSupabaseError(fallback.error);
+      return (fallback.data ?? []) as PostRecord[];
+    }
     throw formatSupabaseError(error);
   }
 
