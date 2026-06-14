@@ -21,6 +21,7 @@ Blog técnico bilingüe de **[Andrés Esquivel](https://www.andresed.dev/)** —
 
 ### Admin (`/dashboard`)
 - Editor markdown bilingüe, borradores/publicación, series y upload de covers (Supabase Storage)
+- **Gestor de series** (`/dashboard/series`): listar series, asignar posts, reordenar ↑↓, renombrar slug
 - Panel de **suscriptores** con notificaciones in-app (badge) y opción de remover
 - Revalidación ISR al publicar
 

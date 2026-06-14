@@ -76,7 +76,19 @@ export function PostList({ posts }: PostListProps) {
                 </Link>
                 <p className="mt-1 truncate text-xs text-ink-muted">
                   {post.title_es}
-                  {post.series_slug ? ` · series: ${post.series_slug}` : ''}
+                  {post.series_slug ? (
+                    <>
+                      {' '}
+                      ·{' '}
+                      <Link
+                        href={`/dashboard/series/${post.series_slug}`}
+                        className="text-meta-400 hover:text-ink"
+                      >
+                        series: {post.series_slug}
+                        {post.series_order ? ` #${post.series_order}` : ''}
+                      </Link>
+                    </>
+                  ) : null}
                 </p>
                 <p className="font-mono text-xs text-ink-muted/80">
                   /blog/{post.slug_en} · /blog/{post.slug_es}

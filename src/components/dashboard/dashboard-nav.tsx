@@ -10,6 +10,9 @@ export function DashboardNav({ unreadNewsletterCount = 0 }: DashboardNavProps) {
       <Link href="/dashboard" className="text-ink-muted transition-colors hover:text-ink">
         Posts
       </Link>
+      <Link href="/dashboard/series" className="text-ink-muted transition-colors hover:text-ink">
+        Series
+      </Link>
       <Link
         href="/dashboard/newsletter"
         className="inline-flex items-center gap-2 text-ink-muted transition-colors hover:text-ink"
