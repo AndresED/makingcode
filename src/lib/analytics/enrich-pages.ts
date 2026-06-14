@@ -1,10 +1,6 @@
+import { slugFromBlogPath } from '@/lib/analytics/post-views';
 import type { PostRecord } from '@/lib/posts/types';
 import type { AnalyticsPageRow } from './types';
-
-function slugFromBlogPath(path: string): string | null {
-  const match = path.match(/^\/blog\/([^/?#]+)/);
-  return match?.[1] ?? null;
-}
 
 export function enrichTopPagesWithPostTitles(
   rows: AnalyticsPageRow[],

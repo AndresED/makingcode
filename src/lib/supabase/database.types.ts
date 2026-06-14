@@ -267,6 +267,10 @@ export type Database = {
         Args: { p_since: string; p_limit?: number };
         Returns: Array<{ country_code: string; pageviews: number; visitors: number }>;
       };
+      analytics_public_top_blog_slugs: {
+        Args: { p_since: string; p_limit?: number };
+        Returns: Array<{ slug: string; pageviews: number; visitors: number }>;
+      };
       search_published_content: {
         Args: {
           search_query: string;

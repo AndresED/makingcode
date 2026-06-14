@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BlogSearch } from '@/components/blog/blog-search';
 import { CategoryNav } from '@/components/blog/category-nav';
+import { PopularSidebarNav } from '@/components/blog/popular-sidebar-nav';
 import { SeriesSidebarNav } from '@/components/blog/series-sidebar-nav';
 import type { Locale } from '@/lib/i18n/dictionary';
 import { t } from '@/lib/i18n/dictionary';
@@ -31,6 +32,8 @@ export function BlogSidebar({
       <CategoryNav locale={locale} activeCategory={activeCategory} />
 
       <SeriesSidebarNav locale={locale} activeSlug={activeSeriesSlug} />
+
+      <PopularSidebarNav locale={locale} />
 
       {showRecent && recentPosts.length > 0 ? (
         <nav aria-label={t(locale, 'sidebar.recent')}>

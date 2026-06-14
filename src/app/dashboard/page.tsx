@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PostList } from '@/components/dashboard/post-list';
 import { getAnalyticsDashboardReport } from '@/lib/analytics/first-party-stats';
+import { getPostViewCountsByPostId } from '@/lib/analytics/post-views';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
 
@@ -13,10 +14,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const [posts, unreadNewsletterCount, analytics] = await Promise.all([
-    listAllPostsForAdmin(),
+  const posts = await listAllPostsForAdmin();
+  const [unreadNewsletterCount, analytics, viewCounts] = await Promise.all([
     countUnreadNewsletterSubscribers(),
     getAnalyticsDashboardReport(),
+    getPostViewCountsByPostId(posts, 30),
   ]);
   const published = posts.filter((p) => p.status === 'published').length;
   const drafts = posts.filter((p) => p.status === 'draft').length;
@@ -75,7 +77,7 @@ export default async function DashboardPage() {
           <p className="text-ink-muted">No posts yet. Create your first draft.</p>
         </div>
       ) : (
-        <PostList posts={posts} />
+        <PostList posts={posts} viewCounts={viewCounts} />
       )}
     </section>
   );

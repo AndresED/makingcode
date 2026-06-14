@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AnalyticsReport } from '@/components/dashboard/analytics-report';
+import { TopPublicationsPanel } from '@/components/dashboard/top-publications-panel';
 import { enrichTopPagesWithPostTitles } from '@/lib/analytics/enrich-pages';
 import { getAnalyticsDashboardReport } from '@/lib/analytics/first-party-stats';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
@@ -25,5 +26,10 @@ export default async function DashboardAnalyticsPage() {
         }
       : report;
 
-  return <AnalyticsReport report={enrichedReport} />;
+  return (
+    <div className="space-y-8">
+      <TopPublicationsPanel posts={posts} />
+      <AnalyticsReport report={enrichedReport} />
+    </div>
+  );
 }
