@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/brand/logo';
+import { AuthorSocialLinks } from '@/components/author-social-links';
 import { t, type Locale } from '@/lib/i18n/dictionary';
 import { siteConfig } from '@/lib/seo/site';
 
@@ -36,7 +37,8 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               </li>
             </ul>
           </div>
-          <div className="space-y-2 text-sm text-ink-muted sm:text-right lg:text-right">
+          <div className="space-y-3 text-sm text-ink-muted sm:text-right lg:text-right">
+            <AuthorSocialLinks locale={locale} className="justify-start sm:justify-end" />
             <p>
               {t(locale, 'footer.tagline')}{' '}
               <a href={siteConfig.author.url} className="text-ink hover:text-accent-400">

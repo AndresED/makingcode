@@ -24,10 +24,19 @@ export default async function HomePage() {
   const { posts, total } = await listPublishedPosts({ page: 1, pageSize: HOME_POSTS_LIMIT });
   const seriesList = await listPublishedSeries();
   const primarySeries = seriesList[0] ?? null;
-  const seriesPosts = primarySeries
+  const allSeriesPosts = primarySeries
     ? await listPublishedPostsInSeries(primarySeries.slug, locale)
     : [];
-  const [featured, ...rest] = posts;
+
+  const featured = posts[0] ?? null;
+  const featuredId = featured?.id ?? null;
+  const seriesPostIds = new Set(allSeriesPosts.map((post) => post.id));
+
+  const seriesPostsForHome = allSeriesPosts.filter((post) => post.id !== featuredId);
+  const recentPosts = posts.filter(
+    (post) => post.id !== featuredId && !seriesPostIds.has(post.id),
+  );
+
   const showViewAll = total > HOME_POSTS_LIMIT;
   const showRecent = total >= MIN_POSTS_FOR_SIDEBAR_RECENT;
 
@@ -47,14 +56,19 @@ export default async function HomePage() {
           <>
             {featured ? <FeaturedPostCard post={featured} locale={locale} /> : null}
 
-            {primarySeries ? (
-              <HomeSeriesBlock locale={locale} seriesSlug={primarySeries.slug} posts={seriesPosts} />
+            {primarySeries && seriesPostsForHome.length > 0 ? (
+              <HomeSeriesBlock
+                locale={locale}
+                seriesSlug={primarySeries.slug}
+                posts={seriesPostsForHome}
+                totalInSeries={allSeriesPosts.length}
+              />
             ) : null}
 
-            {rest.length > 0 ? (
+            {recentPosts.length > 0 ? (
               <div className="space-y-6">
                 <h2 className="font-display text-xl text-ink">{t(locale, 'home.recent')}</h2>
-                <PostGrid posts={rest} locale={locale} />
+                <PostGrid posts={recentPosts} locale={locale} />
               </div>
             ) : null}
 

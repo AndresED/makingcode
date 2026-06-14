@@ -19,7 +19,7 @@ export function FeaturedPostCard({ post, locale }: FeaturedPostCardProps) {
           {post.cover_image_url ? (
             <PostCoverImage
               src={post.cover_image_url}
-              alt=""
+              alt={post.title}
               className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
               sizes="(max-width: 640px) 100vw, 50vw"
               priority

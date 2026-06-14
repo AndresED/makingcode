@@ -9,6 +9,7 @@ import { ReadingProgress } from '@/components/blog/reading-progress';
 import { NewsletterForm } from '@/components/blog/newsletter-form';
 import { PostComments } from '@/components/blog/post-comments';
 import { RelatedPosts } from '@/components/blog/related-posts';
+import { PostAlternateLocaleChip } from '@/components/blog/post-alternate-locale-chip';
 import { SeriesNav } from '@/components/blog/series-nav';
 import { PostCoverFallback } from '@/components/post-cover-fallback';
 import { PostContent } from '@/components/post-content';
@@ -125,6 +126,9 @@ export default async function PostPage({ params }: PostPageProps) {
               <span>
                 {post.reading_time_minutes} {t(locale, 'article.minRead')}
               </span>
+              {post.alternateSlug && post.alternateSlug !== post.slug ? (
+                <PostAlternateLocaleChip locale={locale} alternateSlug={post.alternateSlug} />
+              ) : null}
             </div>
             <h1 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
               {post.title}

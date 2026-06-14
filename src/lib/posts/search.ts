@@ -34,5 +34,6 @@ export async function searchPublishedPosts(
       cover_image_url: post.cover_image_url,
       reading_time_minutes: post.reading_time_minutes,
       published_at: post.published_at,
+      series_order: post.series_order,
     }));
 }

@@ -1,11 +1,10 @@
 /**
- * Patch production posts: series_slug, series_order, staggered published_at.
+ * Patch production posts: series, dates, and cover images.
  *
  * Usage:
  *   npm run patch:seo
  *   npm run patch:seo -- --dry-run
- *
- * Requires .env.local with NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
+ *   npm run patch:seo -- --covers-only
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -24,21 +23,25 @@ const PATCHES = [
     slug_en: 'why-your-nestjs-service-becomes-a-mess-and-how-hexagonal-architecture-fixes-it',
     series_order: 1,
     published_at: '2026-03-10T14:00:00.000Z',
+    cover_image_url: '/images/hexagonal.webp',
   },
   {
     slug_en: 'cqrs-in-nestjs-stop-mixing-reads-and-writes-in-the-same-service',
     series_order: 2,
     published_at: '2026-03-24T14:00:00.000Z',
+    cover_image_url: '/images/cqrs.webp',
   },
   {
     slug_en: 'your-api-doesn-t-need-more-services-it-needs-events',
     series_order: 3,
     published_at: '2026-04-07T14:00:00.000Z',
+    cover_image_url: '/images/event-drive.webp',
   },
   {
     slug_en: 'how-to-build-a-multi-tenant-saas-application-in-nestjs-without-duplicating-your-code',
     series_order: 4,
     published_at: '2026-04-21T14:00:00.000Z',
+    cover_image_url: '/images/multitenant.webp',
   },
 ];
 
@@ -62,6 +65,7 @@ async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const dryRun = process.argv.includes('--dry-run');
+  const coversOnly = process.argv.includes('--covers-only');
 
   if (!url || !serviceKey) {
     console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local');
@@ -72,12 +76,14 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  console.log(`Patching ${PATCHES.length} post(s) → series ${SERIES_SLUG}${dryRun ? ' [DRY RUN]' : ''}…\n`);
+  console.log(
+    `Patching ${PATCHES.length} post(s)${coversOnly ? ' (covers only)' : ''}${dryRun ? ' [DRY RUN]' : ''}…\n`,
+  );
 
   for (const patch of PATCHES) {
     const { data: existing, error: findError } = await supabase
       .from('posts')
-      .select('id, slug_en, series_slug, series_order, published_at')
+      .select('id, slug_en, cover_image_url')
       .eq('slug_en', patch.slug_en)
       .maybeSingle();
 
@@ -91,28 +97,25 @@ async function main() {
       continue;
     }
 
-    const row = {
-      series_slug: SERIES_SLUG,
-      series_order: patch.series_order,
-      published_at: patch.published_at,
-    };
+    const row = coversOnly
+      ? { cover_image_url: patch.cover_image_url }
+      : {
+          series_slug: SERIES_SLUG,
+          series_order: patch.series_order,
+          published_at: patch.published_at,
+          cover_image_url: patch.cover_image_url,
+        };
 
     if (dryRun) {
-      console.log(
-        `[dry-run] ${patch.slug_en} → order=${patch.series_order} published_at=${patch.published_at}`,
-      );
+      console.log(`[dry-run] ${patch.slug_en} → ${JSON.stringify(row)}`);
       continue;
     }
 
     const { error } = await supabase.from('posts').update(row).eq('id', existing.id);
-    console.log(
-      error
-        ? `✗ ${patch.slug_en}: ${error.message}`
-        : `✓ ${patch.slug_en} → /series/${SERIES_SLUG} #${patch.series_order}`,
-    );
+    console.log(error ? `✗ ${patch.slug_en}: ${error.message}` : `✓ ${patch.slug_en}`);
   }
 
-  console.log('\nDone. Revalidate /series/nestjs-enterprise and sitemap after deploy.');
+  console.log('\nDone.');
 }
 
 main().catch((err) => {

@@ -63,6 +63,7 @@ export type PostSummary = Pick<
   | 'cover_image_url'
   | 'reading_time_minutes'
   | 'published_at'
+  | 'series_order'
 >;
 
 export type PostDetail = LocalizedPost;

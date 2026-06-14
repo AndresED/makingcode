@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { Locale } from '@/lib/i18n/dictionary';
+import { formatSeriesName } from '@/lib/posts/format-series-name';
 import { t } from '@/lib/i18n/dictionary';
 import { categoryLabel } from '@/lib/i18n/category';
 import type { PostCategory } from '@/lib/posts/categories';
@@ -125,10 +126,7 @@ export function buildSeriesMetadata(
   seriesSlug: string,
   articleCount: number,
 ): Metadata {
-  const name = seriesSlug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+  const name = formatSeriesName(seriesSlug, locale);
 
   const description =
     locale === 'es'
