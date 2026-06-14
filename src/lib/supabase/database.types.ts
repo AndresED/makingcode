@@ -180,6 +180,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      page_view_events: {
+        Row: {
+          id: string;
+          path: string;
+          referrer_host: string | null;
+          country_code: string | null;
+          session_id: string;
+          locale: string | null;
+          viewed_at: string;
+        };
+        Insert: {
+          id?: string;
+          path: string;
+          referrer_host?: string | null;
+          country_code?: string | null;
+          session_id: string;
+          locale?: string | null;
+          viewed_at?: string;
+        };
+        Update: {
+          id?: string;
+          path?: string;
+          referrer_host?: string | null;
+          country_code?: string | null;
+          session_id?: string;
+          locale?: string | null;
+          viewed_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -211,6 +241,32 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      record_page_view: {
+        Args: {
+          p_path: string;
+          p_session_id: string;
+          p_referrer_host?: string | null;
+          p_country_code?: string | null;
+          p_locale?: string | null;
+        };
+        Returns: undefined;
+      };
+      analytics_summary: {
+        Args: { p_since: string };
+        Returns: Array<{ pageviews: number; visitors: number; visits: number }>;
+      };
+      analytics_top_pages: {
+        Args: { p_since: string; p_limit?: number };
+        Returns: Array<{ path: string; pageviews: number; visitors: number }>;
+      };
+      analytics_top_referrers: {
+        Args: { p_since: string; p_limit?: number };
+        Returns: Array<{ referrer_host: string; pageviews: number; visitors: number }>;
+      };
+      analytics_top_countries: {
+        Args: { p_since: string; p_limit?: number };
+        Returns: Array<{ country_code: string; pageviews: number; visitors: number }>;
+      };
       search_published_content: {
         Args: {
           search_query: string;

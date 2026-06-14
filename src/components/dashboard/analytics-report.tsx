@@ -92,61 +92,45 @@ function BreakdownTable({
   );
 }
 
-function SetupPanel() {
+function SetupPanel({ message }: { message: string }) {
   return (
     <div className="surface-card space-y-4 px-6 py-8">
       <div>
-        <h2 className="font-display text-xl text-ink">Connect Plausible</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
-          The public site already supports the Plausible script via{' '}
-          <code className="text-ink-body">NEXT_PUBLIC_PLAUSIBLE_DOMAIN</code>. To show stats here,
-          add a Stats API key in your Plausible account and set these server env vars:
-        </p>
+        <h2 className="font-display text-xl text-ink">Analytics setup</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">{message}</p>
       </div>
       <ul className="space-y-2 text-sm text-ink-body">
-        <li>
-          <code>PLAUSIBLE_API_KEY</code> — Stats API key (server only)
-        </li>
-        <li>
-          <code>PLAUSIBLE_SITE_ID</code> — optional; defaults to{' '}
-          <code>NEXT_PUBLIC_PLAUSIBLE_DOMAIN</code>
-        </li>
+        <li>Run the Supabase migration: <code>supabase/migrations/20260622000000_page_view_events.sql</code></li>
+        <li>Public pages send lightweight beacons to <code>/api/analytics/view</code></li>
+        <li>No third-party service or paid trial required</li>
       </ul>
-      <p className="text-sm text-ink-muted">
-        Create the key in Plausible → Settings → API Keys → Stats API. After deploying, pageviews
-        and referrers will appear here within a few minutes.
-      </p>
-      <a
-        href="https://plausible.io/docs/stats-api"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex text-sm text-accent-400 transition-colors hover:text-ink"
-      >
-        Plausible Stats API docs →
-      </a>
     </div>
   );
 }
 
 export function AnalyticsReport({ report }: AnalyticsReportProps) {
   if (!report.configured) {
-    return <SetupPanel />;
+    return (
+      <SetupPanel message="First-party analytics is not ready yet. Apply the page_view_events migration in Supabase." />
+    );
   }
 
   if (report.error) {
     return (
       <div className="space-y-4">
         <div className="surface-card border-rose-500/20 bg-rose-500/10 px-6 py-5">
-          <p className="font-medium text-ink">Could not load Plausible stats</p>
+          <p className="font-medium text-ink">Could not load analytics</p>
           <p className="mt-2 text-sm text-ink-muted">{report.error}</p>
-          <p className="mt-2 text-sm text-ink-muted">
-            Site: <code>{report.siteId}</code>
-          </p>
         </div>
-        <SetupPanel />
+        <SetupPanel message="Fix the issue above, then redeploy. Tracking uses your Supabase database only." />
       </div>
     );
   }
+
+  const hasData =
+    (report.period30d?.pageviews ?? 0) > 0 ||
+    report.topPages.length > 0 ||
+    report.topSources.length > 0;
 
   return (
     <div className="space-y-8">
@@ -154,18 +138,17 @@ export function AnalyticsReport({ report }: AnalyticsReportProps) {
         <div>
           <h1 className="font-display text-2xl text-ink">Analytics</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            Plausible · <code>{report.siteId}</code> · updated {formatFetchedAt(report.fetchedAt)}
+            First-party · stored in Supabase · updated {formatFetchedAt(report.fetchedAt)}
           </p>
         </div>
-        <a
-          href="https://plausible.io"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-accent-400 transition-colors hover:text-ink"
-        >
-          Open Plausible →
-        </a>
       </div>
+
+      {!hasData ? (
+        <div className="surface-card px-6 py-5 text-sm text-ink-muted">
+          No views recorded yet. Browse a few public pages on the site and refresh this report.
+          Dashboard and login routes are excluded from tracking.
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Pageviews (7d)" value={report.period7d?.pageviews ?? null} />
@@ -186,7 +169,7 @@ export function AnalyticsReport({ report }: AnalyticsReportProps) {
           emptyLabel="No page data yet."
         />
         <BreakdownTable
-          title="Top sources (30d)"
+          title="Top referrers (30d)"
           rows={report.topSources}
           valueLabel="Views"
           emptyLabel="No referrer data yet."
@@ -201,9 +184,8 @@ export function AnalyticsReport({ report }: AnalyticsReportProps) {
       />
 
       <p className="text-xs text-ink-muted">
-        Search result pages are excluded from Plausible by default when using{' '}
-        <code>?q=</code> filters in your site settings. Dashboard data is cached for about 10
-        minutes.
+        Visitors are estimated with a privacy-friendly session id in localStorage. Country comes
+        from Vercel geo headers. Bots are filtered server-side.
       </p>
     </div>
   );

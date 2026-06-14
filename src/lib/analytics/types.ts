@@ -16,6 +16,7 @@ export interface AnalyticsPageRow extends AnalyticsBreakdownRow {
 
 export interface AnalyticsDashboardReport {
   configured: boolean;
+  provider: 'first-party';
   siteId: string | null;
   period7d: AnalyticsSummary | null;
   period30d: AnalyticsSummary | null;

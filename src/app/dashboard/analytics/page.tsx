@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { AnalyticsReport } from '@/components/dashboard/analytics-report';
 import { enrichTopPagesWithPostTitles } from '@/lib/analytics/enrich-pages';
-import { getAnalyticsDashboardReport } from '@/lib/analytics/plausible-stats';
+import { getAnalyticsDashboardReport } from '@/lib/analytics/first-party-stats';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
 
 export const metadata: Metadata = {

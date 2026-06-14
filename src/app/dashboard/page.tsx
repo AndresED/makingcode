@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PostList } from '@/components/dashboard/post-list';
-import { getAnalyticsDashboardReport } from '@/lib/analytics/plausible-stats';
+import { getAnalyticsDashboardReport } from '@/lib/analytics/first-party-stats';
 import { countUnreadNewsletterSubscribers } from '@/lib/newsletter/repository';
 import { listAllPostsForAdmin } from '@/lib/posts/repository';
 

@@ -1,7 +1,8 @@
 import Script from 'next/script';
+import { AnalyticsBeacon } from '@/components/analytics-beacon';
 import { getAnalyticsConfig } from '@/lib/analytics/config';
 
-export function Analytics() {
+function ThirdPartyAnalytics() {
   const config = getAnalyticsConfig();
   if (!config) return null;
 
@@ -28,4 +29,13 @@ export function Analytics() {
   }
 
   return null;
+}
+
+export function Analytics() {
+  return (
+    <>
+      <AnalyticsBeacon />
+      <ThirdPartyAnalytics />
+    </>
+  );
 }
