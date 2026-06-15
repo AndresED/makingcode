@@ -73,17 +73,32 @@ export default async function SeriesIndexPage() {
           <ul className="grid gap-4 sm:grid-cols-2">
             {series.map((item) => {
               const titles = { title_en: item.title_en, title_es: item.title_es };
+              const statusLabel =
+                item.activityStatus === 'active'
+                  ? t(locale, 'home.seriesActive')
+                  : t(locale, 'home.seriesComplete');
+              const statusClass =
+                item.activityStatus === 'active'
+                  ? 'border-accent-500/30 bg-accent-500/10 text-accent-400'
+                  : 'border-white/[0.08] bg-white/[0.04] text-ink-muted';
+
               return (
                 <li key={item.slug}>
                   <article className="surface-card surface-card-hover group h-full p-5 sm:p-6">
                     <Link href={`/series/${item.slug}`} className="flex h-full flex-col gap-3">
-                      <p className="label-caps text-meta-400">{t(locale, 'article.series')}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusClass}`}
+                        >
+                          {statusLabel}
+                        </span>
+                        <p className="text-sm text-ink-muted">
+                          {seriesArticleCountLabel(locale, item.postCount)}
+                        </p>
+                      </div>
                       <h2 className="font-display text-xl text-ink transition-colors duration-150 ease-out group-hover:text-accent-400">
                         {formatSeriesName(item.slug, locale, titles)}
                       </h2>
-                      <p className="text-sm text-ink-muted">
-                        {seriesArticleCountLabel(locale, item.postCount)}
-                      </p>
                       <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-ink-body">
                         {seriesDescription(locale, item)}
                       </p>

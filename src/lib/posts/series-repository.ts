@@ -1,4 +1,9 @@
 import { cache } from 'react';
+import {
+  compareSeriesForDisplay,
+  inferSeriesActivityStatus,
+  type SeriesActivityStatus,
+} from './series-activity';
 import type { PostRecord, PostSeriesMembership } from './types';
 
 export type { PostSeriesMembership };
@@ -493,30 +498,133 @@ export async function swapSeriesMemberPositions(
   if (u2.error) throw new Error(u2.error.message);
 }
 
+interface SeriesMemberPostSnapshot {
+  status: string;
+  published_at: string | null;
+  slug_en: string;
+  slug_es: string;
+  title_en: string;
+  title_es: string;
+}
+
+interface SeriesStatsRow {
+  slug: string;
+  title_en: string;
+  title_es: string;
+  description_en: string | null;
+  description_es: string | null;
+  updated_at: string;
+  members: Array<{ post: SeriesMemberPostSnapshot | SeriesMemberPostSnapshot[] | null }>;
+}
+
+export interface PublishedSeriesLatestPost {
+  slug_en: string;
+  slug_es: string;
+  title_en: string;
+  title_es: string;
+  published_at: string;
+}
+
+export interface PublishedSeriesStats {
+  slug: string;
+  title_en: string;
+  title_es: string;
+  description_en: string | null;
+  description_es: string | null;
+  updated_at: string;
+  postCount: number;
+  lastPublishedAt: string | null;
+  activityStatus: SeriesActivityStatus;
+  latestPost: PublishedSeriesLatestPost | null;
+}
+
+export type PublishedSeriesHomeItem = PublishedSeriesStats;
+
+function isSeriesTablesUnavailable(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('post_series') ||
+    lower.includes('is_admin') ||
+    lower.includes('permission denied')
+  );
+}
+
+function publishedMembers(
+  members: SeriesStatsRow['members'],
+): SeriesMemberPostSnapshot[] {
+  const posts: SeriesMemberPostSnapshot[] = [];
+  for (const member of members ?? []) {
+    const post = unwrapJoin(member.post);
+    if (!post || post.status !== 'published' || !post.published_at) continue;
+    posts.push(post);
+  }
+  return posts;
+}
+
+function buildSeriesStats(row: SeriesStatsRow): PublishedSeriesStats | null {
+  const publishedPosts = publishedMembers(row.members);
+  if (publishedPosts.length === 0) return null;
+
+  const latestPost = publishedPosts.reduce((current, post) =>
+    new Date(post.published_at!).getTime() > new Date(current.published_at!).getTime()
+      ? post
+      : current,
+  );
+
+  const lastPublishedAt = latestPost.published_at!;
+
+  return {
+    slug: row.slug,
+    title_en: row.title_en,
+    title_es: row.title_es,
+    description_en: row.description_en,
+    description_es: row.description_es,
+    updated_at: row.updated_at,
+    postCount: publishedPosts.length,
+    lastPublishedAt,
+    activityStatus: inferSeriesActivityStatus(lastPublishedAt),
+    latestPost: {
+      slug_en: latestPost.slug_en,
+      slug_es: latestPost.slug_es,
+      title_en: latestPost.title_en,
+      title_es: latestPost.title_es,
+      published_at: lastPublishedAt,
+    },
+  };
+}
+
+function sortSeriesStats(items: PublishedSeriesStats[]): PublishedSeriesStats[] {
+  return [...items].sort(compareSeriesForDisplay);
+}
+
+const SERIES_STATS_SELECT =
+  'slug, title_en, title_es, description_en, description_es, updated_at, members:post_series_members(post:posts(status, published_at, slug_en, slug_es, title_en, title_es))';
+
+async function fetchPublishedSeriesStats(): Promise<PublishedSeriesStats[]> {
+  const supabase = await getAnonClient();
+  const { data, error } = await supabase.from('post_series').select(SERIES_STATS_SELECT);
+
+  if (error) {
+    if (isSeriesTablesUnavailable(error.message)) return [];
+    throw new Error(error.message);
+  }
+
+  return sortSeriesStats(
+    ((data ?? []) as SeriesStatsRow[])
+      .map(buildSeriesStats)
+      .filter((series): series is PublishedSeriesStats => series != null),
+  );
+}
+
+export const listPublishedSeriesForHome = cache(async (): Promise<PublishedSeriesHomeItem[]> => {
+  return fetchPublishedSeriesStats();
+});
+
 export const listPublishedSeriesSlugs = cache(async (): Promise<
   Array<{ slug: string; updated_at: string; postCount: number }>
 > => {
-  const supabase = await getAnonClient();
-  const { data, error } = await supabase
-    .from('post_series')
-    .select('slug, updated_at, members:post_series_members(post:posts(status))');
-
-  if (error) throw new Error(error.message);
-
-  return ((data ?? []) as Array<{
-    slug: string;
-    updated_at: string;
-    members: Array<{ post: { status: string } | { status: string }[] | null }>;
-  }>)
-    .map((series) => ({
-      slug: series.slug,
-      updated_at: series.updated_at,
-      postCount: series.members.filter(
-        (member) => unwrapJoin(member.post)?.status === 'published',
-      ).length,
-    }))
-    .filter((s) => s.postCount > 0)
-    .sort((a, b) => b.postCount - a.postCount);
+  const rows = await fetchPublishedSeriesStats();
+  return rows.map(({ slug, updated_at, postCount }) => ({ slug, updated_at, postCount }));
 });
 
 export interface PublishedSeriesCatalogItem {
@@ -527,48 +635,33 @@ export interface PublishedSeriesCatalogItem {
   description_es: string | null;
   postCount: number;
   updated_at: string;
+  lastPublishedAt: string | null;
+  activityStatus: SeriesActivityStatus;
 }
 
 export const listPublishedSeriesCatalog = cache(async (): Promise<PublishedSeriesCatalogItem[]> => {
-  const supabase = await getAnonClient();
-  const { data, error } = await supabase
-    .from('post_series')
-    .select(
-      'slug, title_en, title_es, description_en, description_es, updated_at, members:post_series_members(post:posts(status))',
-    );
-
-  if (error) {
-    const message = error.message.toLowerCase();
-    if (
-      message.includes('post_series') ||
-      message.includes('is_admin') ||
-      message.includes('permission denied')
-    ) {
-      return [];
-    }
-    throw new Error(error.message);
-  }
-
-  return ((data ?? []) as Array<{
-    slug: string;
-    title_en: string;
-    title_es: string;
-    description_en: string | null;
-    description_es: string | null;
-    updated_at: string;
-    members: Array<{ post: { status: string } | { status: string }[] | null }>;
-  }>)
-    .map((series) => ({
-      slug: series.slug,
-      title_en: series.title_en,
-      title_es: series.title_es,
-      description_en: series.description_en,
-      description_es: series.description_es,
-      updated_at: series.updated_at,
-      postCount: series.members.filter(
-        (member) => unwrapJoin(member.post)?.status === 'published',
-      ).length,
-    }))
-    .filter((series) => series.postCount > 0)
-    .sort((a, b) => b.postCount - a.postCount);
+  const rows = await fetchPublishedSeriesStats();
+  return rows.map(
+    ({
+      slug,
+      title_en,
+      title_es,
+      description_en,
+      description_es,
+      updated_at,
+      postCount,
+      lastPublishedAt,
+      activityStatus,
+    }) => ({
+      slug,
+      title_en,
+      title_es,
+      description_en,
+      description_es,
+      updated_at,
+      postCount,
+      lastPublishedAt,
+      activityStatus,
+    }),
+  );
 });

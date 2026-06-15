@@ -2,14 +2,15 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { FeaturedPostCard } from '@/components/blog/featured-post-card';
 import { HomeHero } from '@/components/blog/home-hero';
-import { HomeSeriesBlock } from '@/components/blog/home-series-block';
+import { HomeSeriesGrid } from '@/components/blog/home-series-grid';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { PostGrid } from '@/components/post-grid';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
-import { HOME_POSTS_LIMIT, MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
-import { listPublishedPosts, listPublishedPostsInSeries, listPublishedSeries } from '@/lib/posts/repository';
+import { HOME_POSTS_LIMIT, HOME_SERIES_STRIP_MAX, MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
+import { listPublishedPosts } from '@/lib/posts/repository';
+import { listPublishedSeriesForHome } from '@/lib/posts/series-repository';
 import { buildHomeMetadata } from '@/lib/seo/page-metadata';
 
 export const revalidate = 3600;
@@ -22,24 +23,17 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const locale = await getLocale();
 
-  const [{ posts, total }, seriesList] = await Promise.all([
+  const [{ posts, total }, seriesForHome] = await Promise.all([
     listPublishedPosts({ page: 1, pageSize: HOME_POSTS_LIMIT }),
-    listPublishedSeries(),
+    listPublishedSeriesForHome(),
   ]);
-
-  const primarySeries = seriesList[0] ?? null;
-  const allSeriesPosts = primarySeries
-    ? await listPublishedPostsInSeries(primarySeries.slug, locale)
-    : [];
 
   const featured = posts[0] ?? null;
   const featuredId = featured?.id ?? null;
-  const seriesPostIds = new Set(allSeriesPosts.map((post) => post.id));
+  const recentPosts = posts.filter((post) => post.id !== featuredId);
 
-  const seriesPostsForHome = allSeriesPosts.filter((post) => post.id !== featuredId);
-  const recentPosts = posts.filter(
-    (post) => post.id !== featuredId && !seriesPostIds.has(post.id),
-  );
+  const showAllSeries = seriesForHome.length > 0 && seriesForHome.length <= HOME_SERIES_STRIP_MAX;
+  const showFeaturedSeries = seriesForHome.length > HOME_SERIES_STRIP_MAX;
 
   const showViewAll = total > HOME_POSTS_LIMIT;
   const showRecent = total >= MIN_POSTS_FOR_SIDEBAR_RECENT;
@@ -60,12 +54,13 @@ export default async function HomePage() {
           <>
             {featured ? <FeaturedPostCard post={featured} locale={locale} /> : null}
 
-            {primarySeries && seriesPostsForHome.length > 0 ? (
-              <HomeSeriesBlock
+            {showAllSeries ? <HomeSeriesGrid locale={locale} items={seriesForHome} /> : null}
+
+            {showFeaturedSeries ? (
+              <HomeSeriesGrid
                 locale={locale}
-                seriesSlug={primarySeries.slug}
-                posts={seriesPostsForHome}
-                totalInSeries={allSeriesPosts.length}
+                items={seriesForHome.slice(0, 1)}
+                showViewAllLink
               />
             ) : null}
 
