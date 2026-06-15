@@ -6,10 +6,23 @@ import { siteConfig } from '@/lib/seo/site';
 
 interface HomeHeroProps {
   locale: Locale;
+  /** Shorter intro when the page already highlights a featured article below. */
+  compact?: boolean;
 }
 
-export function HomeHero({ locale }: HomeHeroProps) {
+export function HomeHero({ locale, compact = false }: HomeHeroProps) {
   const { author } = siteConfig;
+
+  if (compact) {
+    return (
+      <header className="space-y-3">
+        <h1 className="lg:leading-[1.1]">
+          <BrandWordmark size="lg" />
+        </h1>
+        <p className="max-w-2xl text-base leading-relaxed text-ink-body">{t(locale, 'home.tagline')}</p>
+      </header>
+    );
+  }
 
   return (
     <header className="space-y-6">

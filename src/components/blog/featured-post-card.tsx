@@ -15,7 +15,7 @@ export function FeaturedPostCard({ post, locale }: FeaturedPostCardProps) {
   return (
     <article className="surface-card surface-card-hover group overflow-hidden">
       <Link href={`/blog/${post.slug}`} className="grid sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <div className="relative aspect-[16/10] min-h-[12rem] overflow-hidden bg-dark-900 sm:aspect-auto sm:min-h-[18rem]">
+        <div className="relative aspect-[16/10] min-h-[11rem] overflow-hidden bg-dark-900 sm:aspect-auto sm:min-h-[15rem]">
           {post.cover_image_url ? (
             <PostCoverImage
               src={post.cover_image_url}

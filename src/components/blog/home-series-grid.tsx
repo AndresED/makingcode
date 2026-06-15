@@ -61,7 +61,7 @@ export function HomeSeriesGrid({ locale, items, showViewAllLink = false }: HomeS
 
           return (
             <li key={item.slug}>
-              <article className="surface-card surface-card-hover group flex h-full flex-col gap-3 p-5 sm:p-6">
+              <article className="surface-card surface-card-hover group flex h-full flex-col gap-2.5 p-4 sm:p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(item.activityStatus)}`}

@@ -1,6 +1,6 @@
 import { BlogSearch } from '@/components/blog/blog-search';
 import { CategoryNav } from '@/components/blog/category-nav';
-import { BlogSidebar } from '@/components/blog/blog-sidebar';
+import { BlogSidebar, type BlogSidebarVariant } from '@/components/blog/blog-sidebar';
 import type { Locale } from '@/lib/i18n/dictionary';
 import type { PostSummary } from '@/lib/posts/types';
 
@@ -13,6 +13,7 @@ interface ListLayoutProps {
   /** Show mobile-only search + category chips above main content */
   showMobileExplore?: boolean;
   showRecent?: boolean;
+  sidebarVariant?: BlogSidebarVariant;
 }
 
 export function ListLayout({
@@ -23,6 +24,7 @@ export function ListLayout({
   activeSeriesSlug,
   showMobileExplore = false,
   showRecent = true,
+  sidebarVariant = 'default',
 }: ListLayoutProps) {
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
@@ -33,6 +35,7 @@ export function ListLayout({
           activeCategory={activeCategory}
           activeSeriesSlug={activeSeriesSlug}
           showRecent={showRecent}
+          variant={sidebarVariant}
         />
       </div>
       <div className="min-w-0 space-y-6">

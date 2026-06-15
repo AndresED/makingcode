@@ -8,7 +8,7 @@ import { ListLayout } from '@/components/layout/list-layout';
 import { PostGrid } from '@/components/post-grid';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
-import { HOME_POSTS_LIMIT, HOME_SERIES_STRIP_MAX, MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
+import { HOME_POSTS_LIMIT, HOME_SERIES_STRIP_MAX } from '@/lib/posts/constants';
 import { listPublishedPosts } from '@/lib/posts/repository';
 import { listPublishedSeriesForHome } from '@/lib/posts/series-repository';
 import { buildHomeMetadata } from '@/lib/seo/page-metadata';
@@ -36,17 +36,17 @@ export default async function HomePage() {
   const showFeaturedSeries = seriesForHome.length > HOME_SERIES_STRIP_MAX;
 
   const showViewAll = total > HOME_POSTS_LIMIT;
-  const showRecent = total >= MIN_POSTS_FOR_SIDEBAR_RECENT;
 
   return (
     <ListLayout
       locale={locale}
-      recentPosts={posts.slice(0, 5)}
+      recentPosts={posts.slice(0, 3)}
       showMobileExplore
-      showRecent={showRecent}
+      showRecent={false}
+      sidebarVariant="home"
     >
-      <section className="space-y-10">
-        <HomeHero locale={locale} />
+      <section className="space-y-8">
+        <HomeHero locale={locale} compact={posts.length > 0} />
 
         {posts.length === 0 ? (
           <EmptyPosts locale={locale} />
