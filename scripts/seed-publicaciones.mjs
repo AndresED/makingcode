@@ -1,5 +1,5 @@
 /**
- * Seed bilingual posts from docs/publicaciones/**/en.md + es.md (paired by folder).
+ * Seed bilingual posts from docs/publicaciones (paired en.md + es.md per folder).
  *
  * Usage: npm run seed:publicaciones
  */
@@ -140,6 +140,20 @@ async function main() {
     const category = en.meta.category || es.meta.category || 'backend';
     const series_slug = en.meta.series_slug || es.meta.series_slug || null;
     const series_order = Number(en.meta.series_order || es.meta.series_order || 0) || null;
+    const seriesTitle =
+      en.meta.series_title_en || es.meta.series_title_en
+        ? {
+            title_en: en.meta.series_title_en || es.meta.series_title_en,
+            title_es: en.meta.series_title_es || es.meta.series_title_es || en.meta.series_title_en,
+          }
+        : null;
+    const seriesDescription =
+      en.meta.series_description_en || es.meta.series_description_en
+        ? {
+            description_en: en.meta.series_description_en || es.meta.series_description_en,
+            description_es: es.meta.series_description_es || en.meta.series_description_es,
+          }
+        : null;
     const published_at =
       en.meta.published_at ||
       es.meta.published_at ||
@@ -190,6 +204,8 @@ async function main() {
           seriesSlug: series_slug,
           seriesOrder: series_order,
           postId: existing.id,
+          seriesTitle,
+          seriesDescription,
         });
       }
       console.log(`✓ Actualizado ${slug_en}`);
@@ -205,6 +221,8 @@ async function main() {
           seriesSlug: series_slug,
           seriesOrder: series_order,
           postId: inserted.id,
+          seriesTitle,
+          seriesDescription,
         });
       }
       console.log(`✓ Publicado ${slug_en} + ${slug_es}`);

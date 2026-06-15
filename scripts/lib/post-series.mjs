@@ -9,7 +9,7 @@ export function slugToSeriesTitle(slug) {
 
 export async function upsertSeriesMembership(
   supabase,
-  { seriesSlug, seriesOrder, seriesTitle, postId },
+  { seriesSlug, seriesOrder, seriesTitle, seriesDescription, postId },
   dryRun = false,
 ) {
   if (!seriesSlug || seriesOrder == null) return;
@@ -18,6 +18,12 @@ export async function upsertSeriesMembership(
     slug: seriesSlug,
     title_en: seriesTitle?.title_en ?? slugToSeriesTitle(seriesSlug),
     title_es: seriesTitle?.title_es ?? seriesTitle?.title_en ?? slugToSeriesTitle(seriesSlug),
+    ...(seriesDescription?.description_en
+      ? {
+          description_en: seriesDescription.description_en,
+          description_es: seriesDescription.description_es ?? seriesDescription.description_en,
+        }
+      : {}),
   };
 
   if (dryRun) {
