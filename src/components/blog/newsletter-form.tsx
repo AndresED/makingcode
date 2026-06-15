@@ -7,7 +7,7 @@ import { sendNewsletterWelcomeEmail } from '@/lib/emailjs/newsletter';
 
 interface NewsletterFormProps {
   locale: Locale;
-  variant?: 'inline' | 'card';
+  variant?: 'inline' | 'card' | 'sidebar';
 }
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'already' | 'error';
@@ -59,16 +59,29 @@ export function NewsletterForm({ locale, variant = 'card' }: NewsletterFormProps
   const wrapperClass =
     variant === 'card'
       ? 'surface-card space-y-4 p-6'
-      : 'space-y-4 border-t border-white/[0.06] pt-8';
+      : variant === 'sidebar'
+        ? 'space-y-3 rounded-xl border border-white/[0.08] bg-dark-800/30 p-4'
+        : 'space-y-4 border-t border-white/[0.06] pt-8';
+
+  const titleClass =
+    variant === 'sidebar' ? 'font-display text-base text-ink' : 'font-display text-xl text-ink';
+
+  const bodyClass =
+    variant === 'sidebar'
+      ? 'text-xs leading-relaxed text-ink-muted'
+      : 'text-sm leading-relaxed text-ink-body';
+
+  const formClass =
+    variant === 'sidebar' ? 'flex flex-col gap-2.5' : 'flex flex-col gap-3 sm:flex-row';
 
   return (
     <section className={wrapperClass} aria-label={t(locale, 'newsletter.title')}>
-      <div className="space-y-2">
-        <h2 className="font-display text-xl text-ink">{t(locale, 'newsletter.title')}</h2>
-        <p className="text-sm leading-relaxed text-ink-body">{t(locale, 'newsletter.body')}</p>
+      <div className="space-y-1.5">
+        <h2 className={titleClass}>{t(locale, 'newsletter.title')}</h2>
+        <p className={bodyClass}>{t(locale, 'newsletter.body')}</p>
       </div>
 
-      <form onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-3 sm:flex-row">
+      <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
         <label className="sr-only" htmlFor={`newsletter-email-${variant}`}>
           {t(locale, 'newsletter.emailLabel')}
         </label>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BlogSearch } from '@/components/blog/blog-search';
 import { CategoryNav } from '@/components/blog/category-nav';
+import { NewsletterForm } from '@/components/blog/newsletter-form';
 import { PopularSidebarNav } from '@/components/blog/popular-sidebar-nav';
 import { SeriesSidebarNav } from '@/components/blog/series-sidebar-nav';
 import type { Locale } from '@/lib/i18n/dictionary';
@@ -56,6 +57,8 @@ export function BlogSidebar({
             </li>
           </ul>
         </nav>
+
+        <NewsletterForm locale={locale} variant="sidebar" />
 
         <div className="border-t border-white/[0.06] pt-4">
           <a

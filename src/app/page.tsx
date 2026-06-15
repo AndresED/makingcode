@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { FeaturedPostCard } from '@/components/blog/featured-post-card';
 import { HomeHero } from '@/components/blog/home-hero';
 import { HomeSeriesGrid } from '@/components/blog/home-series-grid';
+import { NewsletterForm } from '@/components/blog/newsletter-form';
 import { EmptyPosts } from '@/components/empty-posts';
 import { ListLayout } from '@/components/layout/list-layout';
 import { PostGrid } from '@/components/post-grid';
@@ -81,6 +82,10 @@ export default async function HomePage() {
                 </Link>
               </div>
             ) : null}
+
+            <div className="lg:hidden">
+              <NewsletterForm locale={locale} variant="card" />
+            </div>
           </>
         )}
       </section>
