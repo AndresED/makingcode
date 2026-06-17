@@ -7,6 +7,7 @@ import type { Schema } from 'hast-util-sanitize';
 import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
 import rehypePrettyCode, { type Options as PrettyCodeOptions } from 'rehype-pretty-code';
+import { rehypeMermaid } from './rehype-mermaid';
 
 const sanitizeSchema: Schema = {
   ...defaultSchema,
@@ -20,7 +21,12 @@ const sanitizeSchema: Schema = {
       ['dataLineNumbers'],
     ],
     span: [...(defaultSchema.attributes?.span ?? []), ['className'], ['style'], ['dataLine']],
-    div: [...(defaultSchema.attributes?.div ?? []), ['className'], ['dataRehypePrettyCodeTitle']],
+    div: [
+      ...(defaultSchema.attributes?.div ?? []),
+      ['className'],
+      ['dataRehypePrettyCodeTitle'],
+      ['dataRendered'],
+    ],
   },
 };
 
@@ -35,6 +41,7 @@ const processor = unified()
   .use(remarkGfm)
   .use(remarkRehype, { allowDangerousHtml: false })
   .use(rehypeSlug)
+  .use(rehypeMermaid)
   .use(rehypePrettyCode, prettyCodeOptions)
   .use(rehypeSanitize, sanitizeSchema)
   .use(rehypeStringify);

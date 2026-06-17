@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MermaidRenderer } from '@/components/blog/mermaid-renderer';
 
 interface MarkdownPreviewProps {
   markdown: string;
@@ -47,7 +48,13 @@ export function MarkdownPreview({ markdown, label }: MarkdownPreviewProps) {
           {loading ? (
             <p className="text-sm text-ink-muted">Rendering…</p>
           ) : (
-            <div className="post-prose max-h-96 overflow-y-auto" dangerouslySetInnerHTML={{ __html: html }} />
+            <>
+              <div
+                className="post-prose max-h-96 overflow-y-auto"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+              <MermaidRenderer renderKey={html} />
+            </>
           )}
         </div>
       ) : null}

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AuthorCard } from '@/components/blog/author-card';
 import { BackToTop } from '@/components/blog/back-to-top';
+import { MermaidRenderer } from '@/components/blog/mermaid-renderer';
 import { CodeCopyEnhancer } from '@/components/blog/code-copy-enhancer';
 import { PostToc, PostTocMobile } from '@/components/blog/post-toc';
 import { Breadcrumbs } from '@/components/blog/breadcrumbs';
@@ -44,8 +45,13 @@ async function loadPostBySlug(slug: string) {
 }
 
 export async function generateStaticParams() {
-  const slugs = await listPublishedSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await listPublishedSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch (error) {
+    console.error('[blog] Failed to pre-render slugs, deferring to ISR:', error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
@@ -167,6 +173,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </figure>
 
           <PostContent bodyMd={post.body_md} />
+          <MermaidRenderer />
           <CodeCopyEnhancer />
           <AuthorCard
             locale={locale}

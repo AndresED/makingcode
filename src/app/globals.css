@@ -167,6 +167,37 @@
   font-size: inherit;
 }
 
+.post-prose .mermaid-diagram {
+  margin: 1.75rem 0;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-dark-900);
+  overflow-x: auto;
+}
+
+.post-prose .mermaid-diagram svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.post-prose .mermaid-diagram.mermaid-error {
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+}
+
+.post-prose .mermaid-diagram.mermaid-error::before {
+  content: 'Could not render diagram. Check Mermaid syntax.';
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #f87171;
+  font-family: var(--font-sans);
+}
+
 .post-prose .code-block-wrap {
   position: relative;
 }
