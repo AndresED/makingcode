@@ -1,21 +1,31 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CoverImageUpload } from '@/components/blog/cover-image-upload';
 import {
   assignPostToSeriesAction,
   moveSeriesPostAction,
   removePostFromSeriesAction,
   renameSeriesSlugAction,
+  updateSeriesPresentationAction,
   updateSeriesTitlesAction,
 } from '@/lib/posts/series-actions';
 import type { PostRecord } from '@/lib/posts/types';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
+import { seriesPresentationComplete } from '@/lib/posts/series-presentation';
+
+interface SeriesPresentation {
+  description_en: string;
+  description_es: string;
+  cover_image_url: string;
+}
 
 interface SeriesManagerProps {
   seriesSlug: string;
   seriesTitles: { title_en: string; title_es: string };
+  seriesPresentation: SeriesPresentation;
   postsInSeries: PostRecord[];
   availablePosts: PostRecord[];
 }
@@ -23,6 +33,7 @@ interface SeriesManagerProps {
 export function SeriesManager({
   seriesSlug,
   seriesTitles,
+  seriesPresentation,
   postsInSeries,
   availablePosts,
 }: SeriesManagerProps) {
@@ -44,6 +55,15 @@ export function SeriesManager({
     });
   }
 
+  const presentationReady = seriesPresentationComplete({
+    slug: seriesSlug,
+    title_en: seriesTitles.title_en,
+    title_es: seriesTitles.title_es,
+    description_en: seriesPresentation.description_en,
+    description_es: seriesPresentation.description_es,
+    cover_image_url: seriesPresentation.cover_image_url,
+  });
+
   return (
     <div className="space-y-8">
       {error ? (
@@ -51,6 +71,25 @@ export function SeriesManager({
           {error}
         </p>
       ) : null}
+
+      {!presentationReady ? (
+        <p className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-200/90">
+          Public cards at <code className="text-amber-100">/series</code> use the description and
+          cover below. Fill both languages for a complete card.
+        </p>
+      ) : null}
+
+      <SeriesPresentationForm
+        seriesSlug={seriesSlug}
+        initialPresentation={seriesPresentation}
+        disabled={pending}
+      />
+
+      <SeriesTitlesForm
+        seriesSlug={seriesSlug}
+        initialTitles={seriesTitles}
+        disabled={pending}
+      />
 
       <section className="space-y-4">
         <h2 className="font-display text-lg text-ink">Articles in this series</h2>
@@ -172,14 +211,113 @@ export function SeriesManager({
         </p>
       </section>
 
-      <SeriesTitlesForm
-        seriesSlug={seriesSlug}
-        initialTitles={seriesTitles}
-        disabled={pending}
-      />
-
       <RenameSeriesForm seriesSlug={seriesSlug} disabled={pending || postsInSeries.length === 0} />
     </div>
+  );
+}
+
+function SeriesPresentationForm({
+  seriesSlug,
+  initialPresentation,
+  disabled,
+}: {
+  seriesSlug: string;
+  initialPresentation: SeriesPresentation;
+  disabled: boolean;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [descriptionEn, setDescriptionEn] = useState(initialPresentation.description_en);
+  const [descriptionEs, setDescriptionEs] = useState(initialPresentation.description_es);
+  const [coverUrl, setCoverUrl] = useState(initialPresentation.cover_image_url);
+
+  useEffect(() => {
+    setDescriptionEn(initialPresentation.description_en);
+    setDescriptionEs(initialPresentation.description_es);
+    setCoverUrl(initialPresentation.cover_image_url);
+  }, [initialPresentation]);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <section className="surface-card space-y-4 p-5">
+      <div className="space-y-1">
+        <h2 className="font-display text-lg text-ink">Card &amp; series page</h2>
+        <p className="text-sm text-ink-muted">
+          Description and cover shown on <code className="text-meta-400">/series</code> cards and the
+          series hub header. Upload uses the same storage as post covers.
+        </p>
+      </div>
+      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setError(null);
+          startTransition(async () => {
+            const result = await updateSeriesPresentationAction(seriesSlug, {
+              description_en: descriptionEn,
+              description_es: descriptionEs,
+              cover_image_url: coverUrl,
+            });
+            if (result.error) {
+              setError(result.error);
+              return;
+            }
+            router.refresh();
+          });
+        }}
+      >
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div>
+            <label htmlFor="series-desc-en" className="mb-1 block text-sm text-ink-muted">
+              Card description (EN)
+            </label>
+            <textarea
+              id="series-desc-en"
+              value={descriptionEn}
+              onChange={(e) => setDescriptionEn(e.target.value)}
+              rows={4}
+              maxLength={320}
+              placeholder="Short pitch for the series card — what readers will learn, in one or two sentences."
+              className="w-full rounded-lg border border-white/[0.08] bg-dark-900/80 px-3 py-2 text-sm text-ink placeholder:text-ink-muted/70"
+            />
+            <p className="mt-1 text-xs text-ink-muted">{descriptionEn.length}/320</p>
+          </div>
+          <div>
+            <label htmlFor="series-desc-es" className="mb-1 block text-sm text-ink-muted">
+              Card description (ES)
+            </label>
+            <textarea
+              id="series-desc-es"
+              value={descriptionEs}
+              onChange={(e) => setDescriptionEs(e.target.value)}
+              rows={4}
+              maxLength={320}
+              placeholder="Texto corto para la card — qué aprenderán, en una o dos frases."
+              className="w-full rounded-lg border border-white/[0.08] bg-dark-900/80 px-3 py-2 text-sm text-ink placeholder:text-ink-muted/70"
+            />
+            <p className="mt-1 text-xs text-ink-muted">{descriptionEs.length}/320</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm text-ink-muted">Cover image (2:1 recommended)</p>
+          <CoverImageUpload
+            key={initialPresentation.cover_image_url}
+            defaultValue={initialPresentation.cover_image_url}
+            onChange={setCoverUrl}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={disabled || pending}
+          className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-dark-950 transition-opacity hover:opacity-90 disabled:opacity-60"
+        >
+          Save presentation
+        </button>
+      </form>
+    </section>
   );
 }
 

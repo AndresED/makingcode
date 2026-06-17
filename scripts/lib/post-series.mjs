@@ -24,6 +24,9 @@ export async function upsertSeriesMembership(
           description_es: seriesDescription.description_es ?? seriesDescription.description_en,
         }
       : {}),
+    ...(seriesDescription?.cover_image_url
+      ? { cover_image_url: seriesDescription.cover_image_url }
+      : {}),
   };
 
   if (dryRun) {

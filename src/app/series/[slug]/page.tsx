@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/blog/breadcrumbs';
 import { ListLayout } from '@/components/layout/list-layout';
+import { PostCoverImage } from '@/components/post-cover-image';
 import { categoryLabel } from '@/lib/i18n/category';
 import { t } from '@/lib/i18n/dictionary';
 import { getLocale } from '@/lib/i18n/locale';
 import { MIN_POSTS_FOR_SIDEBAR_RECENT } from '@/lib/posts/constants';
 import { formatSeriesName, seriesArticleCountLabel } from '@/lib/posts/format-series-name';
 import { listPublishedPosts, listPublishedPostsInSeries } from '@/lib/posts/repository';
+import { resolveSeriesDescription } from '@/lib/posts/series-presentation';
 import { getPostSeriesBySlug } from '@/lib/posts/series-repository';
 import { buildSeriesMetadata } from '@/lib/seo/page-metadata';
 import { buildSeriesItemListJsonLd } from '@/lib/seo/json-ld';
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: SeriesPageProps): Promise<Met
   if (ordered.length === 0) {
     return { title: formatSeriesName(slug, locale, titles) };
   }
-  return buildSeriesMetadata(locale, slug, ordered.length, titles);
+  return buildSeriesMetadata(locale, slug, ordered.length, series);
 }
 
 function formatDate(iso: string, locale: string): string {
@@ -54,6 +56,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
   const titles = series ? { title_en: series.title_en, title_es: series.title_es } : null;
   const seriesName = formatSeriesName(slug, locale, titles);
+  const coverUrl = series?.cover_image_url?.trim() || null;
+  const description =
+    series != null
+      ? resolveSeriesDescription(locale, series)
+      : seriesName;
+
   const itemListJsonLd = buildSeriesItemListJsonLd(
     slug,
     seriesName,
@@ -72,18 +80,36 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
         />
-        <header className="space-y-4">
+        <header className="space-y-5">
           <Breadcrumbs
             items={[
               { label: t(locale, 'article.backToSeries'), href: '/series' },
               { label: seriesName },
             ]}
           />
-          <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
-          <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
-            {formatSeriesName(slug, locale, titles)}
-          </h1>
-          <p className="text-ink-muted">{seriesArticleCountLabel(locale, ordered.length)}</p>
+
+          {coverUrl ? (
+            <div className="relative aspect-[2/1] w-full max-w-3xl overflow-hidden rounded-xl border border-white/[0.08]">
+              <PostCoverImage
+                src={coverUrl}
+                alt=""
+                priority
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-cover"
+              />
+            </div>
+          ) : null}
+
+          <div className="space-y-3">
+            <p className="label-caps text-accent-400">{t(locale, 'article.series')}</p>
+            <h1 className="font-display text-3xl font-medium text-ink sm:text-4xl">
+              {seriesName}
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-ink-body sm:text-base">
+              {description}
+            </p>
+            <p className="text-sm text-ink-muted">{seriesArticleCountLabel(locale, ordered.length)}</p>
+          </div>
         </header>
 
         <ol className="space-y-4">

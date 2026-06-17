@@ -217,3 +217,49 @@ export async function updateSeriesTitlesAction(
   revalidateSeriesPaths(seriesSlug);
   return {};
 }
+
+const optionalUrl = z.string().url().optional().or(z.literal(''));
+
+export async function updateSeriesPresentationAction(
+  seriesSlug: string,
+  presentation: {
+    description_en: string;
+    description_es: string;
+    cover_image_url: string;
+  },
+): Promise<{ error?: string }> {
+  const session = await getAdminSession();
+  if (!session) return { error: 'Unauthorized' };
+
+  const series = await getPostSeriesBySlug(seriesSlug);
+  if (!series) return { error: 'Series not found' };
+
+  const description_en = presentation.description_en.trim();
+  const description_es = presentation.description_es.trim();
+  const coverRaw = presentation.cover_image_url.trim();
+
+  if (description_en.length > 0 && description_en.length < 10) {
+    return { error: 'English description must be at least 10 characters (or empty)' };
+  }
+  if (description_es.length > 0 && description_es.length < 10) {
+    return { error: 'Spanish description must be at least 10 characters (or empty)' };
+  }
+
+  const coverParsed = optionalUrl.safeParse(coverRaw);
+  if (!coverParsed.success) {
+    return { error: 'Cover must be a valid URL or empty' };
+  }
+
+  try {
+    await updatePostSeriesRecord(series.id, {
+      description_en: description_en || null,
+      description_es: description_es || null,
+      cover_image_url: coverParsed.data || null,
+    });
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Failed to update presentation' };
+  }
+
+  revalidateSeriesPaths(seriesSlug);
+  return {};
+}

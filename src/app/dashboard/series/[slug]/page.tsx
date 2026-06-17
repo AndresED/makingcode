@@ -69,6 +69,11 @@ export default async function DashboardSeriesDetailPage({
       <SeriesManager
         seriesSlug={slug}
         seriesTitles={{ title_en: series.title_en, title_es: series.title_es }}
+        seriesPresentation={{
+          description_en: series.description_en ?? '',
+          description_es: series.description_es ?? '',
+          cover_image_url: series.cover_image_url ?? '',
+        }}
         postsInSeries={postsInSeries}
         availablePosts={availablePosts}
       />

@@ -15,6 +15,7 @@ export interface PostSeriesRecord {
   title_es: string;
   description_en: string | null;
   description_es: string | null;
+  cover_image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -32,6 +33,9 @@ export interface AdminSeriesSummary {
   slug: string;
   title_en: string;
   title_es: string;
+  description_en: string | null;
+  description_es: string | null;
+  cover_image_url: string | null;
   postCount: number;
   publishedCount: number;
 }
@@ -130,7 +134,10 @@ export async function upsertPostSeriesBySlug(
 export async function updatePostSeriesRecord(
   id: string,
   patch: Partial<
-    Pick<PostSeriesRecord, 'slug' | 'title_en' | 'title_es' | 'description_en' | 'description_es'>
+    Pick<
+      PostSeriesRecord,
+      'slug' | 'title_en' | 'title_es' | 'description_en' | 'description_es' | 'cover_image_url'
+    >
   >,
 ): Promise<PostSeriesRecord> {
   const supabase = await getAdminClient();
@@ -360,6 +367,9 @@ export async function listAdminSeriesSummaries(): Promise<AdminSeriesSummary[]> 
       slug: series.slug,
       title_en: series.title_en,
       title_es: series.title_es,
+      description_en: series.description_en,
+      description_es: series.description_es,
+      cover_image_url: series.cover_image_url,
       postCount: stats.postCount,
       publishedCount: stats.publishedCount,
     };
@@ -513,6 +523,7 @@ interface SeriesStatsRow {
   title_es: string;
   description_en: string | null;
   description_es: string | null;
+  cover_image_url: string | null;
   updated_at: string;
   members: Array<{ post: SeriesMemberPostSnapshot | SeriesMemberPostSnapshot[] | null }>;
 }
@@ -531,6 +542,7 @@ export interface PublishedSeriesStats {
   title_es: string;
   description_en: string | null;
   description_es: string | null;
+  cover_image_url: string | null;
   updated_at: string;
   postCount: number;
   lastPublishedAt: string | null;
@@ -579,6 +591,7 @@ function buildSeriesStats(row: SeriesStatsRow): PublishedSeriesStats | null {
     title_es: row.title_es,
     description_en: row.description_en,
     description_es: row.description_es,
+    cover_image_url: row.cover_image_url,
     updated_at: row.updated_at,
     postCount: publishedPosts.length,
     lastPublishedAt,
@@ -598,7 +611,7 @@ function sortSeriesStats(items: PublishedSeriesStats[]): PublishedSeriesStats[] 
 }
 
 const SERIES_STATS_SELECT =
-  'slug, title_en, title_es, description_en, description_es, updated_at, members:post_series_members(post:posts(status, published_at, slug_en, slug_es, title_en, title_es))';
+  'slug, title_en, title_es, description_en, description_es, cover_image_url, updated_at, members:post_series_members(post:posts(status, published_at, slug_en, slug_es, title_en, title_es))';
 
 async function fetchPublishedSeriesStats(): Promise<PublishedSeriesStats[]> {
   const supabase = await getAnonClient();
@@ -633,6 +646,7 @@ export interface PublishedSeriesCatalogItem {
   title_es: string;
   description_en: string | null;
   description_es: string | null;
+  cover_image_url: string | null;
   postCount: number;
   updated_at: string;
   lastPublishedAt: string | null;
@@ -648,6 +662,7 @@ export const listPublishedSeriesCatalog = cache(async (): Promise<PublishedSerie
       title_es,
       description_en,
       description_es,
+      cover_image_url,
       updated_at,
       postCount,
       lastPublishedAt,
@@ -658,6 +673,7 @@ export const listPublishedSeriesCatalog = cache(async (): Promise<PublishedSerie
       title_es,
       description_en,
       description_es,
+      cover_image_url,
       updated_at,
       postCount,
       lastPublishedAt,

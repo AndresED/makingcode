@@ -5,11 +5,13 @@ import { useRef, useState } from 'react';
 interface CoverImageUploadProps {
   defaultValue?: string;
   name?: string;
+  onChange?: (url: string) => void;
 }
 
 export function CoverImageUpload({
   defaultValue = '',
   name = 'cover_image_url',
+  onChange,
 }: CoverImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState(defaultValue);
@@ -36,6 +38,7 @@ export function CoverImageUpload({
       }
 
       setUrl(data.url);
+      onChange?.(data.url);
     } catch {
       setError('Upload failed');
     } finally {
@@ -61,7 +64,10 @@ export function CoverImageUpload({
       <input
         type="url"
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={(e) => {
+          setUrl(e.target.value);
+          onChange?.(e.target.value);
+        }}
         placeholder="Or paste image URL"
         className="w-full rounded-lg border border-white/10 bg-dark-800 px-3 py-2 text-sm text-ink"
       />

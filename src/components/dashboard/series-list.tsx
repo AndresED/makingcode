@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createSeriesRedirectAction } from '@/lib/posts/series-actions';
 import type { AdminSeriesSummary } from '@/lib/posts/series-repository';
 import { formatSeriesName } from '@/lib/posts/format-series-name';
+import { seriesPresentationComplete } from '@/lib/posts/series-presentation';
 
 interface SeriesListProps {
   series: AdminSeriesSummary[];
@@ -76,6 +77,9 @@ export function SeriesList({ series, unassignedCount }: SeriesListProps) {
                 <p className="mt-1 text-xs text-ink-muted">
                   {item.postCount} post{item.postCount === 1 ? '' : 's'} · {item.publishedCount}{' '}
                   published
+                  {!seriesPresentationComplete(item) ? (
+                    <span className="text-amber-400/90"> · card incomplete</span>
+                  ) : null}
                 </p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-2">

@@ -20,6 +20,7 @@ export type Database = {
           title_es: string;
           description_en: string | null;
           description_es: string | null;
+          cover_image_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -30,6 +31,7 @@ export type Database = {
           title_es: string;
           description_en?: string | null;
           description_es?: string | null;
+          cover_image_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,6 +42,7 @@ export type Database = {
           title_es?: string;
           description_en?: string | null;
           description_es?: string | null;
+          cover_image_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
