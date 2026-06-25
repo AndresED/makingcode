@@ -9,9 +9,10 @@ import type { PostSummary } from '@/lib/posts/types';
 interface FeaturedPostCardProps {
   post: PostSummary;
   locale: Locale;
+  eyebrow?: string;
 }
 
-export function FeaturedPostCard({ post, locale }: FeaturedPostCardProps) {
+export function FeaturedPostCard({ post, locale, eyebrow }: FeaturedPostCardProps) {
   return (
     <article className="surface-card surface-card-hover group overflow-hidden">
       <Link href={`/blog/${post.slug}`} className="grid sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
@@ -38,7 +39,7 @@ export function FeaturedPostCard({ post, locale }: FeaturedPostCardProps) {
           />
         </div>
         <div className="flex flex-col justify-center gap-4 p-6 sm:p-8">
-          <p className="label-caps text-accent-400">{t(locale, 'home.featured')}</p>
+          <p className="label-caps text-accent-400">{eyebrow ?? t(locale, 'home.featured')}</p>
           <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
             <span className="rounded-full border border-accent-500/25 bg-accent-500/10 px-2.5 py-0.5 text-accent-400">
               {categoryLabel(locale, post.category)}
